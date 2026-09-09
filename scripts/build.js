@@ -30,4 +30,10 @@ if (fs.existsSync(assetsDist)) {
   fs.cpSync(assetsDist, assetsRoot, { recursive: true });
 }
 
+const projectsDist = path.join(rootDir, 'dist', 'projects');
+const projectsRoot = path.join(rootDir, 'projects');
+if (fs.existsSync(projectsDist)) {
+  fs.cpSync(projectsDist, projectsRoot, { recursive: true });
+}
+
 console.log('Build and multi-target sync completed successfully!');

@@ -10,6 +10,7 @@ export const Footer: React.FC = () => {
   };
 
   const facebookUrl = 'https://www.facebook.com/p/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%85%D8%AC%D8%AF-%D9%84%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE-%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AB%D8%A9-%D9%88-P-V-C-100041790767867/';
+  const tiktokUrl = 'https://tiktok.com/@almajdone?_r=1&_t=ZS-99ataXUqlyk';
 
   return (
     <footer className="bg-brand-dark border-t border-brand-gold/20 pt-16 pb-10 text-brand-ivory relative overflow-hidden">
@@ -160,20 +161,34 @@ export const Footer: React.FC = () => {
 
             {/* Social Links */}
             <div className="pt-2">
-              <p className="text-xs text-brand-gold/80 mb-2">تابعنا على صفحتنا الرسمية:</p>
-              <div className="flex items-center gap-2">
+              <p className="text-xs text-brand-gold/80 mb-2">تابعنا على منصاتنا الرسمية:</p>
+              <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-2">
+                {/* TikTok Link to Official Page */}
+                <a
+                  href={tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-black/70 border border-brand-gold/30 text-brand-ivory hover:text-brand-champagne hover:border-brand-gold text-xs font-bold transition-all shadow-sm group"
+                  aria-label="صفحة شركة المجد على تيك توك"
+                >
+                  <svg className="w-4 h-4 fill-current text-brand-gold group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                  </svg>
+                  <span>تيك توك (@almajdone)</span>
+                </a>
+
                 {/* Facebook Link to Official Page */}
                 <a
                   href={facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1877F2]/20 border border-[#1877F2]/40 text-[#1877F2] hover:bg-[#1877F2]/30 text-xs font-bold transition-all"
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1877F2]/20 border border-[#1877F2]/40 text-[#1877F2] hover:bg-[#1877F2]/30 text-xs font-bold transition-all shadow-sm"
                   aria-label="صفحة شركة المجد على فيسبوك"
                 >
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                   </svg>
-                  <span>فيسبوك (13k+ متابع)</span>
+                  <span>فيسبوك (13k+)</span>
                 </a>
 
                 {/* WhatsApp */}
@@ -181,10 +196,11 @@ export const Footer: React.FC = () => {
                   href={getWhatsAppUrl('السلام عليكم شركة المجد')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center text-[#25D366] hover:bg-[#25D366]/30 transition-all"
-                  aria-label="WhatsApp"
+                  className="h-9 px-3 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center gap-1.5 text-[#25D366] hover:bg-[#25D366]/30 text-xs font-bold transition-all"
+                  aria-label="واتساب"
                 >
-                  <WhatsappLogo size={16} weight="fill" />
+                  <WhatsappLogo size={18} weight="fill" />
+                  <span>واتساب</span>
                 </a>
               </div>
             </div>

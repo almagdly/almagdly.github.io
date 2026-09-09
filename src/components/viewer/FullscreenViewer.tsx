@@ -39,6 +39,12 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
 
   const { isFavorite, toggleFavorite } = useFavorites();
 
+  const touchStartX = React.useRef<number>(0);
+  const touchStartY = React.useRef<number>(0);
+  const touchEndX = React.useRef<number>(0);
+  const touchEndY = React.useRef<number>(0);
+  const isDragging = React.useRef<boolean>(false);
+
   useEffect(() => {
     setActiveImageIndex(0);
     setZoomLevel(1);
@@ -48,19 +54,9 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
     ? (design.galleryImages && design.galleryImages.length > 0 ? design.galleryImages : [design.mainImage])
     : [];
 
-  const handleNextImage = useCallback(() => {
-    if (images.length > 1) {
-      setActiveImageIndex(prev => (prev + 1) % images.length);
-      setZoomLevel(1);
-    }
-  }, [images.length]);
-
-  const handlePrevImage = useCallback(() => {
-    if (images.length > 1) {
-      setActiveImageIndex(prev => (prev - 1 + images.length) % images.length);
-      setZoomLevel(1);
-    }
-  }, [images.length]);
+  const currentDesignIndex = design && allDesigns.length > 0
+    ? allDesigns.findIndex(d => d.id === design.id)
+    : -1;
 
   const handleNextDesign = useCallback(() => {
     if (!design || allDesigns.length === 0 || !onSelectDesign) return;
@@ -68,6 +64,8 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
     if (currentIndex !== -1) {
       const nextIndex = (currentIndex + 1) % allDesigns.length;
       onSelectDesign(allDesigns[nextIndex]);
+      setActiveImageIndex(0);
+      setZoomLevel(1);
     }
   }, [design, allDesigns, onSelectDesign]);
 
@@ -77,8 +75,95 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
     if (currentIndex !== -1) {
       const prevIndex = (currentIndex - 1 + allDesigns.length) % allDesigns.length;
       onSelectDesign(allDesigns[prevIndex]);
+      setActiveImageIndex(0);
+      setZoomLevel(1);
     }
   }, [design, allDesigns, onSelectDesign]);
+
+  // Unified Next: Next Image or Next Design
+  const handleNext = useCallback(() => {
+    if (images.length > 1 && activeImageIndex < images.length - 1) {
+      setActiveImageIndex(prev => prev + 1);
+      setZoomLevel(1);
+    } else if (allDesigns.length > 1 && onSelectDesign) {
+      handleNextDesign();
+    } else if (images.length > 1) {
+      setActiveImageIndex(0);
+      setZoomLevel(1);
+    }
+  }, [images.length, activeImageIndex, allDesigns.length, onSelectDesign, handleNextDesign]);
+
+  // Unified Prev: Prev Image or Prev Design
+  const handlePrev = useCallback(() => {
+    if (images.length > 1 && activeImageIndex > 0) {
+      setActiveImageIndex(prev => prev - 1);
+      setZoomLevel(1);
+    } else if (allDesigns.length > 1 && onSelectDesign) {
+      handlePrevDesign();
+    } else if (images.length > 1) {
+      setActiveImageIndex(images.length - 1);
+      setZoomLevel(1);
+    }
+  }, [images.length, activeImageIndex, allDesigns.length, onSelectDesign, handlePrevDesign]);
+
+  // Touch Swipe Handlers (Mobile & Tablet)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (zoomLevel > 1) return; // Allow pan when zoomed
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (zoomLevel > 1) return;
+    touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = () => {
+    if (zoomLevel > 1) return;
+    const deltaX = touchStartX.current - touchEndX.current;
+    const deltaY = touchStartY.current - touchEndY.current;
+    const minDistance = 45;
+
+    // Must be predominantly horizontal gesture
+    if (Math.abs(deltaX) > minDistance && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      if (deltaX > 0) {
+        // Swiped Left (in RTL Arabic / standard -> Next)
+        handleNext();
+      } else {
+        // Swiped Right -> Prev
+        handlePrev();
+      }
+    }
+  };
+
+  // Mouse Drag Handlers (Desktop)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoomLevel > 1) return;
+    isDragging.current = true;
+    touchStartX.current = e.clientX;
+    touchEndX.current = e.clientX;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || zoomLevel > 1) return;
+    touchEndX.current = e.clientX;
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging.current || zoomLevel > 1) return;
+    isDragging.current = false;
+    const deltaX = touchStartX.current - touchEndX.current;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -87,15 +172,15 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
       if (e.key === 'Escape') {
         onClose();
       } else if (e.key === 'ArrowLeft') {
-        handleNextImage();
+        handleNext();
       } else if (e.key === 'ArrowRight') {
-        handlePrevImage();
+        handlePrev();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, handleNextImage, handlePrevImage]);
+  }, [isOpen, onClose, handleNext, handlePrev]);
 
   const toggleBrowserFullscreen = () => {
     try {
@@ -212,63 +297,73 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Stage Image Area */}
-      <div className="relative flex-1 flex items-center justify-center p-2 sm:p-5 overflow-hidden">
+      {/* Main Stage Image Area with Swipe & Navigation */}
+      <div 
+        className="relative flex-1 flex items-center justify-center p-2 sm:p-5 overflow-hidden touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
         <div
-          className="relative max-w-full max-h-full flex items-center justify-center overflow-auto transition-opacity duration-300"
+          className="relative max-w-full max-h-full flex items-center justify-center overflow-auto transition-opacity duration-300 select-none"
         >
           <img
             src={images[activeImageIndex] || design.mainImage}
             alt={design.title}
+            draggable={false}
             style={{
               transform: `scale(${zoomLevel})`,
               transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
               cursor: zoomLevel > 1 ? 'grab' : 'zoom-in',
             }}
             onClick={() => (zoomLevel === 1 ? handleZoomIn() : handleZoomReset())}
-            className="max-h-[68vh] sm:max-h-[74vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl border border-brand-gold/20"
+            className="max-h-[66vh] sm:max-h-[74vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl border border-brand-gold/20 select-none pointer-events-auto"
           />
         </div>
 
-        {/* Navigation Arrows for Multiple Images */}
-        {images.length > 1 && (
+        {/* Global Navigation Arrows (Right: Previous, Left: Next in RTL) */}
+        {(images.length > 1 || allDesigns.length > 1) && (
           <>
             <button
-              onClick={handlePrevImage}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-brand-dark/80 hover:bg-brand-gold hover:text-brand-dark border border-brand-gold/30 text-brand-ivory transition-all backdrop-blur-md shadow-2xl z-20"
-              aria-label="الصورة السابقة"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrev();
+              }}
+              className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-brand-dark/90 hover:bg-brand-gold hover:text-brand-dark border border-brand-gold/40 text-brand-ivory transition-all backdrop-blur-md shadow-2xl flex items-center justify-center z-30 group"
+              aria-label="السابق (تحريك لليمين)"
+              title="السابق (سهم يمين)"
             >
-              <CaretRight size={20} weight="bold" />
+              <CaretRight size={24} weight="bold" className="group-hover:scale-110 transition-transform" />
             </button>
             <button
-              onClick={handleNextImage}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-brand-dark/80 hover:bg-brand-gold hover:text-brand-dark border border-brand-gold/30 text-brand-ivory transition-all backdrop-blur-md shadow-2xl z-20"
-              aria-label="الصورة التالية"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNext();
+              }}
+              className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-brand-dark/90 hover:bg-brand-gold hover:text-brand-dark border border-brand-gold/40 text-brand-ivory transition-all backdrop-blur-md shadow-2xl flex items-center justify-center z-30 group"
+              aria-label="التالي (تحريك لليسار)"
+              title="التالي (سهم يسار)"
             >
-              <CaretLeft size={20} weight="bold" />
+              <CaretLeft size={24} weight="bold" className="group-hover:scale-110 transition-transform" />
             </button>
           </>
         )}
 
-        {/* Navigation Arrows for Next/Prev Design in Gallery */}
-        {allDesigns.length > 1 && (
-          <div className="hidden lg:flex items-center gap-3 absolute top-5 left-5 z-20">
-            <button
-              onClick={handlePrevDesign}
-              className="px-3 py-1.5 rounded-lg bg-brand-surface/80 border border-brand-gold/20 text-xs text-brand-ivory hover:text-brand-gold transition-colors flex items-center gap-1"
-            >
-              <CaretRight size={14} weight="bold" />
-              <span>التصميم السابق</span>
-            </button>
-            <button
-              onClick={handleNextDesign}
-              className="px-3 py-1.5 rounded-lg bg-brand-surface/80 border border-brand-gold/20 text-xs text-brand-ivory hover:text-brand-gold transition-colors flex items-center gap-1"
-            >
-              <span>التصميم التالي</span>
-              <CaretLeft size={14} weight="bold" />
-            </button>
-          </div>
-        )}
+        {/* Floating Counter & Swipe Hint */}
+        <div className="absolute top-4 inset-x-0 flex flex-col items-center justify-center pointer-events-none z-20 gap-1.5">
+          {allDesigns.length > 0 && currentDesignIndex !== -1 && (
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-dark/85 backdrop-blur-md text-brand-champagne border border-brand-gold/30 shadow-lg">
+              تصميم {currentDesignIndex + 1} من {allDesigns.length}
+              {images.length > 1 && ` • صورة ${activeImageIndex + 1} من ${images.length}`}
+            </span>
+          )}
+          <span className="sm:hidden px-2.5 py-0.5 rounded-full text-[10px] text-brand-ivory/60 bg-black/40 backdrop-blur-sm border border-brand-gold/10">
+            اسحب لليمين أو اليسار للتنقل
+          </span>
+        </div>
       </div>
 
       {/* Bottom Bar: Large WhatsApp CTA Button & Short Info */}
