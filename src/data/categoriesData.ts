@@ -8,7 +8,7 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'Modern Luxury Kitchens',
     description: 'مطابخ عصرية مخصصة تجمع بين الفخامة والوظيفة العملية بخامات PVC و MDF مع أسطح رخام وكوارتز وأجهزة مدمجة.',
     image: getProjectImage('p1.jpg'),
-    count: 31
+    count: 67
   },
   {
     id: 'bedrooms',
@@ -16,7 +16,7 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'Luxury Bedroom Suites',
     description: 'تصميم وتصنيع غرف نوم رئيسية ماستر بتكسيات خشبية جدارية، خلفيات سرير منجدة، تسريحات، ودواليب ملابس مدمجة.',
     image: getProjectImage('b5.jpg'),
-    count: 14
+    count: 27
   },
   {
     id: 'wardrobes',
@@ -24,7 +24,7 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'Custom Wardrobes, Closets & Laundry Units',
     description: 'تفصيل دواليب ملابس مدمجة ودريسنج روم زجاجي بتقسيمات ذكية، ووحدات خزائن غسيل مدمجة متطورة.',
     image: getProjectImage('w3.jpg'),
-    count: 10
+    count: 20
   },
   {
     id: 'interior-design',
@@ -32,7 +32,7 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'Interior Architecture & Decor',
     description: 'تنسيق متكامل للصالات والمجالس، ديكورات شاشات بتكسيات بديل رخام وخشب، قواطع خشبية مفرغة، ومداخل فخمة بتشطيبات راقية.',
     image: getProjectImage('d4.jpg'),
-    count: 8
+    count: 20
   },
   {
     id: 'pvc-doors',
@@ -40,6 +40,6 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'PVC Doors, Windows & Custom Entrances',
     description: 'تصنيع وتفصيل أبواب داخلية وخارجية، نوافذ سحاب ومفصلية عازلة، قطاعات PVC ألمانية دبل جلاس عازلة للصوت والحرارة، وخشب مصفح للفيلات.',
     image: getProjectImage('dr8.jpg'),
-    count: 18
+    count: 39
   }
 ];

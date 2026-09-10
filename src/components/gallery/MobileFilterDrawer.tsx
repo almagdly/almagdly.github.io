@@ -36,11 +36,11 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
   totalResultsCount,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
-    { id: 'kitchens', label: 'مطابخ حديثة (31)' },
-    { id: 'bedrooms', label: 'غرف نوم فاخرة (14)' },
-    { id: 'wardrobes', label: 'خزائن وغرف غسيل (10)' },
-    { id: 'interior-design', label: 'ديكورات وتصميم صالات (8)' },
-    { id: 'pvc-doors', label: 'أبواب ونوافذ و PVC (18)' },
+    { id: 'kitchens', label: 'مطابخ حديثة (67)' },
+    { id: 'bedrooms', label: 'غرف نوم فاخرة (27)' },
+    { id: 'wardrobes', label: 'خزائن وغرف غسيل (20)' },
+    { id: 'interior-design', label: 'ديكورات وتصميم صالات (20)' },
+    { id: 'pvc-doors', label: 'أبواب ونوافذ و PVC (39)' },
   ];
 
   const styles: { id: StyleType | 'all'; label: string }[] = [
