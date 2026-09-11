@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { designsData } from '../data/designsData';
+import { useAdminDesigns } from '../hooks/useAdminStore';
 import { useFavorites } from '../context/FavoritesContext';
 import { getWhatsAppUrl, getDesignInquiryMessage } from '../utils/whatsapp';
 import { SimilarDesigns } from '../components/gallery/SimilarDesigns';
@@ -20,6 +20,7 @@ import {
 } from '@phosphor-icons/react';
 
 export const DesignDetailPage: React.FC = () => {
+  const designsData = useAdminDesigns();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();

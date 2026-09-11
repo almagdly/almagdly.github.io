@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { PaperPlaneTilt, WhatsappLogo, CheckCircle, UploadSimple, ShieldCheck } from '@phosphor-icons/react';
 import { getWhatsAppUrl, getProjectFormWhatsAppMessage } from '../utils/whatsapp';
+import { adminStore } from '../services/adminStore';
 
 export const ProjectRequestPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +32,19 @@ export const ProjectRequestPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
+
+    // Save inquiry to admin dashboard
+    adminStore.addInquiry({
+      name: formData.name || 'عميل بدون اسم',
+      phone: formData.phone || '',
+      type: 'project_request',
+      projectType: formData.projectType || 'مطبخ عصري',
+      location: formData.location,
+      spaceSize: formData.spaceSize,
+      preferredStyle: formData.preferredStyle,
+      budgetRange: formData.budgetRange,
+      details: formData.details,
+    });
     
     try {
       confetti({

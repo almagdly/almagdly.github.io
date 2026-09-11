@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Clock, WhatsappLogo, PaperPlaneTilt, CheckCircle } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../utils/whatsapp';
+import { adminStore } from '../services/adminStore';
 
 export const ContactPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -14,6 +15,15 @@ export const ContactPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+
+    // Save contact inquiry in admin store
+    adminStore.addInquiry({
+      name: name || 'زائر الموقع',
+      phone: phone || '',
+      type: 'contact',
+      projectType: 'استفسار عام / تواصل عبر الموقع',
+      details: message,
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { ScrollToTop } from './components/layout/ScrollToTop';
 import { Navbar } from './components/layout/Navbar';
@@ -16,41 +16,50 @@ import { ServicesPage } from './pages/ServicesPage';
 import { AboutPage } from './pages/AboutPage';
 import { ProjectRequestPage } from './pages/ProjectRequestPage';
 import { ContactPage } from './pages/ContactPage';
+import { AdminPage } from './pages/admin/AdminPage';
+
+const AppContent: React.FC = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="flex flex-col min-h-screen bg-brand-dark text-brand-ivory font-arabic selection:bg-brand-gold selection:text-brand-dark">
+      {/* Main Top Navigation (hidden in admin) */}
+      {!isAdminRoute && <Navbar />}
+
+      {/* Page Routing */}
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/designs" element={<DesignsPage />} />
+          <Route path="/designs/:slug" element={<DesignDetailPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/request" element={<ProjectRequestPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          {/* Fallback route */}
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </main>
+
+      {/* Footer & Floating Actions (hidden in admin) */}
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <FloatingWhatsApp />}
+
+      {/* Global Toast Alerts */}
+      <Toast />
+    </div>
+  );
+};
 
 export const App: React.FC = () => {
   return (
     <FavoritesProvider>
       <Router>
         <ScrollToTop />
-        <div className="flex flex-col min-h-screen bg-brand-dark text-brand-ivory font-arabic selection:bg-brand-gold selection:text-brand-dark">
-          {/* Main Top Navigation */}
-          <Navbar />
-
-          {/* Page Routing */}
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/designs" element={<DesignsPage />} />
-              <Route path="/designs/:slug" element={<DesignDetailPage />} />
-              <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/request" element={<ProjectRequestPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              {/* Fallback route */}
-              <Route path="*" element={<HomePage />} />
-            </Routes>
-          </main>
-
-          {/* Footer */}
-          <Footer />
-
-          {/* Floating Action Button */}
-          <FloatingWhatsApp />
-
-          {/* Global Toast Alerts */}
-          <Toast />
-        </div>
+        <AppContent />
       </Router>
     </FavoritesProvider>
   );

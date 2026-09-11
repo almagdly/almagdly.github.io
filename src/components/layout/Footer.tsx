@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { WhatsappLogo, Phone, MapPin, ArrowUp } from '@phosphor-icons/react';
+import { WhatsappLogo, Phone, MapPin, ArrowUp, LockKey } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../../utils/whatsapp';
 import logoImg from '../../assets/logo.png';
 
@@ -216,6 +216,14 @@ export const Footer: React.FC = () => {
 
           <div className="flex items-center gap-6">
             <span className="text-brand-champagne/70">نصمم المساحات التي تشبهك</span>
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1 text-brand-ivory/30 hover:text-brand-gold transition-colors text-[11px]"
+              title="لوحة الإدارة"
+            >
+              <LockKey size={13} weight="duotone" />
+              <span>لوحة الإدارة</span>
+            </Link>
             <button
               onClick={scrollToTop}
               className="flex items-center gap-1 text-brand-gold hover:text-brand-champagne transition-colors"

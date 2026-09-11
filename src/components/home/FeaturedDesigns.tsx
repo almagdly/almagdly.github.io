@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { designsData } from '../../data/designsData';
+import { useAdminDesigns } from '../../hooks/useAdminStore';
 import { DesignCard } from '../gallery/DesignCard';
 import { DesignItem } from '../../types';
 import { ArrowLeft, Sparkle } from '@phosphor-icons/react';
@@ -10,6 +10,7 @@ interface FeaturedDesignsProps {
 }
 
 export const FeaturedDesigns: React.FC<FeaturedDesignsProps> = ({ onQuickView }) => {
+  const designsData = useAdminDesigns();
   const featured = designsData.filter(d => d.isFeatured).slice(0, 6);
 
   return (

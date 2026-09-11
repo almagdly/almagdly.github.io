@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { designsData } from '../data/designsData';
+import { useAdminDesigns } from '../hooks/useAdminStore';
 import { DesignItem, CategoryType, StyleType, ColorType, SpaceType, SortType } from '../types';
 import { DesignCard } from '../components/gallery/DesignCard';
 import { FilterBar } from '../components/gallery/FilterBar';
@@ -9,6 +9,7 @@ import { FullscreenViewer } from '../components/viewer/FullscreenViewer';
 import { ImageSquare, WhatsappLogo, Sparkle } from '@phosphor-icons/react';
 
 export const DesignsPage: React.FC = () => {
+  const designsData = useAdminDesigns();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // URL State initialization
