@@ -8,7 +8,7 @@ export const categoriesData: CategoryInfo[] = [
     nameEn: 'Modern Luxury Kitchens',
     description: 'مطابخ عصرية مخصصة تجمع بين الفخامة والوظيفة العملية بخامات PVC و MDF مع أسطح رخام وكوارتز وأجهزة مدمجة.',
     image: getProjectImage('p1.jpg'),
-    count: 67
+    count: 66
   },
   {
     id: 'bedrooms',

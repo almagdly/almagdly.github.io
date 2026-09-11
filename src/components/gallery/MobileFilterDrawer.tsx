@@ -36,7 +36,7 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
   totalResultsCount,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
-    { id: 'kitchens', label: 'مطابخ حديثة (67)' },
+    { id: 'kitchens', label: 'مطابخ حديثة (66)' },
     { id: 'bedrooms', label: 'غرف نوم فاخرة (27)' },
     { id: 'wardrobes', label: 'خزائن وغرف غسيل (20)' },
     { id: 'interior-design', label: 'ديكورات وتصميم صالات (20)' },

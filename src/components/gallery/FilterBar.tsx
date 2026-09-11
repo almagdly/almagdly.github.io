@@ -34,7 +34,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   activeFilterCount,
 }) => {
   const categories: { id: CategoryType; label: string; badge?: string }[] = [
-    { id: 'kitchens', label: 'مطابخ حديثة', badge: '67' },
+    { id: 'kitchens', label: 'مطابخ حديثة', badge: '66' },
     { id: 'bedrooms', label: 'غرف نوم فاخرة', badge: '27' },
     { id: 'wardrobes', label: 'خزائن وغرف غسيل', badge: '20' },
     { id: 'interior-design', label: 'ديكورات وتصميم صالات', badge: '20' },

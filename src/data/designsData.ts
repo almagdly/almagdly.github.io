@@ -2169,33 +2169,7 @@ export const designsData: DesignItem[] = [
     isMostViewed: false,
     aspectRatio: 'square'
   },
-// p32: مطبخ مودرن كحلي وخشب طبيعي مع بار حجري
-  {
-    id: 'p32',
-    title: 'مطبخ مودرن كحلي وخشب طبيعي مع بار حجري',
-    titleEn: 'مطبخ مودرن كحلي وخشب طبيعي مع بار حجري - Al-Magd Project',
-    slug: 'modern-navy-wood-stone-bar-kitchen-32',
-    category: 'kitchens',
-    categoryArabic: 'مطابخ حديثة',
-    style: 'modern',
-    styleArabic: 'مودرن',
-    colors: ['dark', 'wood', 'white'],
-    colorsArabic: ['داكن', 'خشبي', 'أبيض'],
-    space: 'large',
-    spaceArabic: 'واسعة',
-    approximateArea: '24 م²',
-    mainImage: getProjectImage('p32.jpg'),
-    galleryImages: [getProjectImage('p32.jpg')],
-    description: 'مطبخ مودرن مخصص يدمج بين خشب السنديان الطبيعي في الخزائن العلوية، واللون الكحلي الداكن المطفي في الخزائن السفلية، مع بار إفطار أنيق مكسو بالحجر الطبيعي وأجهزة بيلت إن مدمجة.',
-    materials: ['خزائن MDF كحلي مطفي', 'خزائن علوية خشب طبيعي', 'بار إفطار حجر طبيعي', 'أسطح كوارتز'],
-    tags: ['مطبخ_مودرن', 'كحلي_وخشب', 'بار_حجري', 'كوارتز'],
-    views: 1584,
-    favoritesCount: 358,
-    dateAdded: '2026-09-10',
-    isFeatured: true,
-    isMostViewed: true,
-    aspectRatio: 'tall'
-  },
+
   // p33: مطبخ عصري زيتي ساج جرين مع كاونتر إفطار
   {
     id: 'p33',
