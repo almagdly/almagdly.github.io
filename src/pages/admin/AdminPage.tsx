@@ -1,10 +1,18 @@
-﻿import React, { useState } from 'react';
-import { useAdminDesigns, useAdminInquiries, useSiteSettings, useIsAdmin } from '../../hooks/useAdminStore';
+import React, { useState } from 'react';
+import {
+  useAdminDesigns,
+  useAdminInquiries,
+  useSiteSettings,
+  useIsAdmin,
+  useBeforeAfter,
+} from '../../hooks/useAdminStore';
 import { AdminLoginPage } from './AdminLoginPage';
 import { AdminHeader } from '../../components/admin/AdminHeader';
 import { AdminSidebar, AdminTab } from '../../components/admin/AdminSidebar';
 import { AdminOverviewTab } from '../../components/admin/tabs/AdminOverviewTab';
 import { AdminDesignsTab } from '../../components/admin/tabs/AdminDesignsTab';
+import { AdminHomepageTab } from '../../components/admin/tabs/AdminHomepageTab';
+import { AdminBeforeAfterTab } from '../../components/admin/tabs/AdminBeforeAfterTab';
 import { AdminInquiriesTab } from '../../components/admin/tabs/AdminInquiriesTab';
 import { AdminSettingsTab } from '../../components/admin/tabs/AdminSettingsTab';
 import { AdminBackupTab } from '../../components/admin/tabs/AdminBackupTab';
@@ -13,6 +21,7 @@ import { AdminDesignModal } from '../../components/admin/tabs/AdminDesignModal';
 export const AdminPage: React.FC = () => {
   const isAuth = useIsAdmin();
   const designs = useAdminDesigns();
+  const beforeAfterList = useBeforeAfter();
   const inquiries = useAdminInquiries();
   const settings = useSiteSettings();
 
@@ -61,6 +70,14 @@ export const AdminPage: React.FC = () => {
             )}
 
             {currentTab === 'designs' && <AdminDesignsTab designs={designs} />}
+
+            {currentTab === 'homepage' && (
+              <AdminHomepageTab designs={designs} settings={settings} />
+            )}
+
+            {currentTab === 'before-after' && (
+              <AdminBeforeAfterTab beforeAfterList={beforeAfterList} />
+            )}
 
             {currentTab === 'inquiries' && <AdminInquiriesTab inquiries={inquiries} />}
 

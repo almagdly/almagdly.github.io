@@ -1,12 +1,14 @@
-import { DesignItem } from '../types';
+﻿import { DesignItem, BeforeAfterItem } from '../types';
 import { InquiryItem, SiteSettings } from '../types/admin';
 import { designsData as initialDesignsData } from '../data/designsData';
+import { beforeAfterData as initialBeforeAfterData } from '../data/beforeAfterData';
 
 const STORAGE_KEYS = {
   DESIGNS: 'almagd_admin_designs',
   INQUIRIES: 'almagd_admin_inquiries',
   SETTINGS: 'almagd_admin_settings',
   AUTH: 'almagd_admin_auth_session',
+  BEFORE_AFTER: 'almagd_admin_before_after',
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -17,6 +19,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   address: 'ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)',
   workingHours: 'السبت - الخميس: 9:00 ص - 9:00 م',
   adminPin: '2026',
+  heroImage: './projects/p1.jpg',
+  heroTagline: 'شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء',
 };
 
 const INITIAL_SAMPLE_INQUIRIES: InquiryItem[] = [
@@ -148,6 +152,65 @@ class AdminStore {
     notifyListeners();
   }
 
+  // === BEFORE & AFTER ===
+  getBeforeAfter(): BeforeAfterItem[] {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.BEFORE_AFTER);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading before/after from storage:', e);
+    }
+    return initialBeforeAfterData;
+  }
+
+  saveBeforeAfter(items: BeforeAfterItem[]) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(items));
+      notifyListeners();
+    } catch (e) {
+      console.error('Error saving before/after:', e);
+    }
+  }
+
+  addBeforeAfter(item: Omit<BeforeAfterItem, 'id'>): BeforeAfterItem {
+    const current = this.getBeforeAfter();
+    const newItem: BeforeAfterItem = {
+      ...item,
+      id: 'ba-' + Date.now(),
+    };
+    const updated = [newItem, ...current];
+    this.saveBeforeAfter(updated);
+    return newItem;
+  }
+
+  updateBeforeAfter(id: string, updates: Partial<BeforeAfterItem>): boolean {
+    const items = this.getBeforeAfter();
+    const index = items.findIndex(b => b.id === id);
+    if (index === -1) return false;
+
+    items[index] = { ...items[index], ...updates };
+    this.saveBeforeAfter([...items]);
+    return true;
+  }
+
+  deleteBeforeAfter(id: string): boolean {
+    const items = this.getBeforeAfter();
+    const updated = items.filter(b => b.id !== id);
+    if (updated.length === items.length) return false;
+    this.saveBeforeAfter(updated);
+    return true;
+  }
+
+  resetBeforeAfterToDefault() {
+    localStorage.removeItem(STORAGE_KEYS.BEFORE_AFTER);
+    notifyListeners();
+  }
+
   // === INQUIRIES ===
   getInquiries(): InquiryItem[] {
     try {
@@ -159,7 +222,6 @@ class AdminStore {
     } catch (e) {
       console.error('Error reading inquiries:', e);
     }
-    // Set initial sample inquiries
     this.saveInquiries(INITIAL_SAMPLE_INQUIRIES);
     return INITIAL_SAMPLE_INQUIRIES;
   }
@@ -266,9 +328,10 @@ class AdminStore {
   // === DATA EXPORT & IMPORT ===
   exportAllDataAsJson(): string {
     const data = {
-      version: '1.0',
+      version: '1.1',
       exportedAt: new Date().toISOString(),
       designs: this.getDesigns(),
+      beforeAfter: this.getBeforeAfter(),
       inquiries: this.getInquiries(),
       settings: this.getSettings(),
     };
@@ -281,13 +344,16 @@ class AdminStore {
       if (parsed.designs && Array.isArray(parsed.designs)) {
         this.saveDesigns(parsed.designs);
       }
+      if (parsed.beforeAfter && Array.isArray(parsed.beforeAfter)) {
+        this.saveBeforeAfter(parsed.beforeAfter);
+      }
       if (parsed.inquiries && Array.isArray(parsed.inquiries)) {
         this.saveInquiries(parsed.inquiries);
       }
       if (parsed.settings && typeof parsed.settings === 'object') {
         this.updateSettings(parsed.settings);
       }
-      return { success: true, message: 'تم استيراد البيانات بنجاح!' };
+      return { success: true, message: 'تم استيراد كافة البيانات وتحديث الموقع بنجاح!' };
     } catch (err: any) {
       return { success: false, message: 'فشل استيراد الملف: ' + err.message };
     }

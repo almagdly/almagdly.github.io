@@ -1,14 +1,16 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { beforeAfterData } from '../../data/beforeAfterData';
+import { useBeforeAfter } from '../../hooks/useAdminStore';
 import { ArrowsHorizontal, MapPin, Clock } from '@phosphor-icons/react';
 
 export const BeforeAfter: React.FC = () => {
+  const beforeAfterData = useBeforeAfter();
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const currentItem = beforeAfterData[activeItemIndex];
+  const safeIndex = activeItemIndex < (beforeAfterData?.length || 0) ? activeItemIndex : 0;
+  const currentItem = beforeAfterData?.[safeIndex];
 
   const handleMove = useCallback((clientX: number) => {
     if (!containerRef.current) return;
@@ -47,12 +49,14 @@ export const BeforeAfter: React.FC = () => {
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
+  if (!currentItem) return null;
+
   return (
     <section className="py-20 lg:py-28 bg-brand-surface/20 border-t border-brand-gold/15 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="text-center max-w-2xl mx-auto mb-8">
           <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-ivory tracking-tight font-arabic">
             قبل و بعد <span className="text-gold-gradient">التنفيذ</span>
           </h2>
@@ -60,6 +64,28 @@ export const BeforeAfter: React.FC = () => {
             اسحب المؤشر لترى كيف نحوّل المساحات القديمة إلى تحف فنية متكاملة
           </p>
         </div>
+
+        {/* Project Selector Tabs */}
+        {beforeAfterData && beforeAfterData.length > 1 && (
+          <div className="flex items-center justify-center gap-2 mb-8 flex-wrap max-w-3xl mx-auto">
+            {beforeAfterData.map((item, idx) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveItemIndex(idx);
+                  setSliderPosition(50);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  safeIndex === idx
+                    ? 'bg-brand-gold text-brand-dark shadow-md shadow-brand-gold/20'
+                    : 'bg-brand-surface/60 border border-brand-gold/20 text-brand-ivory/70 hover:text-brand-ivory hover:border-brand-gold/40'
+                }`}
+              >
+                {item.titleArabic}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Draggable Comparison Stage - Clean & Boxless */}
         <div className="max-w-4xl mx-auto">

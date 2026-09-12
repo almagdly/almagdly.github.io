@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   ChartPieSlice,
   Images,
@@ -8,9 +8,18 @@ import {
   X,
   House,
   ShieldCheck,
+  ArrowsHorizontal,
+  Star,
 } from '@phosphor-icons/react';
 
-export type AdminTab = 'overview' | 'designs' | 'inquiries' | 'settings' | 'backup';
+export type AdminTab =
+  | 'overview'
+  | 'designs'
+  | 'homepage'
+  | 'before-after'
+  | 'inquiries'
+  | 'settings'
+  | 'backup';
 
 interface Props {
   currentTab: AdminTab;
@@ -37,9 +46,19 @@ export const AdminSidebar: React.FC<Props> = ({
     },
     {
       id: 'designs',
-      label: 'إدارة التصاميم',
+      label: 'إدارة كافة التصاميم',
       icon: <Images size={20} weight="duotone" />,
       badge: totalDesignsCount,
+    },
+    {
+      id: 'homepage',
+      label: 'صور الصفحة الرئيسية',
+      icon: <Star size={20} weight="duotone" />,
+    },
+    {
+      id: 'before-after',
+      label: 'مشاريع (قبل و بعد)',
+      icon: <ArrowsHorizontal size={20} weight="duotone" />,
     },
     {
       id: 'inquiries',

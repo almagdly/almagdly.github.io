@@ -3,8 +3,12 @@ import { Link } from 'react-router-dom';
 import { WhatsappLogo, ArrowLeft, Sparkle } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../../utils/whatsapp';
 import { getProjectImage } from '../../utils/assetHelper';
+import { useSiteSettings } from '../../hooks/useAdminStore';
 
 export const HeroSection: React.FC = () => {
+  const settings = useSiteSettings();
+  const heroImage = settings.heroImage || getProjectImage('p1.jpg');
+  const heroTagline = settings.heroTagline || 'شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء';
   const whatsAppUrl = getWhatsAppUrl('السلام عليكم شركة المجد، أود الاستفسار عن تفصيل وتصميم مساحتي (مطابخ / غرف نوم / خزائن / ديكورات).');
 
   return (
@@ -12,11 +16,14 @@ export const HeroSection: React.FC = () => {
       {/* Real Company Interior Background Photo */}
       <div className="absolute inset-0 z-0">
         <img
-          src={getProjectImage('p1.jpg')}
+          src={heroImage}
           alt="تصميم وتنفيذ شركة المجد للمطابخ وغرف النوم والديكورات الداخلية"
           className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
           loading="eager"
           fetchPriority="high"
+          onError={e => {
+            (e.target as HTMLImageElement).src = getProjectImage('p1.jpg');
+          }}
         />
         {/* Dark Luxury Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/75 to-brand-dark/45" />
@@ -29,7 +36,7 @@ export const HeroSection: React.FC = () => {
         {/* Brand Eyebrow Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-dark/85 border border-brand-gold/30 text-brand-champagne text-xs font-semibold tracking-wider uppercase mb-6 backdrop-blur-md shadow-luxury">
           <Sparkle size={14} weight="fill" className="text-brand-gold shrink-0 animate-pulse" />
-          <span>شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء</span>
+          <span>{heroTagline}</span>
         </div>
 
         {/* Comprehensive Powerful Headline (Not just kitchens!) */}

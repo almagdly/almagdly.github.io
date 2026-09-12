@@ -1,4 +1,4 @@
-﻿export interface InquiryItem {
+export interface InquiryItem {
   id: string;
   name: string;
   phone: string;
@@ -21,4 +21,6 @@ export interface SiteSettings {
   address: string;
   workingHours: string;
   adminPin: string;
+  heroImage?: string;
+  heroTagline?: string;
 }

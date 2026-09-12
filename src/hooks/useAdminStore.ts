@@ -1,7 +1,20 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { adminStore } from '../services/adminStore';
-import { DesignItem } from '../types';
+import { DesignItem, BeforeAfterItem } from '../types';
 import { InquiryItem, SiteSettings } from '../types/admin';
+
+export function useBeforeAfter(): BeforeAfterItem[] {
+  const [items, setItems] = useState<BeforeAfterItem[]>(() => adminStore.getBeforeAfter());
+
+  useEffect(() => {
+    const unsubscribe = adminStore.subscribe(() => {
+      setItems([...adminStore.getBeforeAfter()]);
+    });
+    return unsubscribe;
+  }, []);
+
+  return items;
+}
 
 export function useAdminDesigns(): DesignItem[] {
   const [designs, setDesigns] = useState<DesignItem[]>(() => adminStore.getDesigns());
