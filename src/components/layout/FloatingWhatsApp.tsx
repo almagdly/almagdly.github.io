@@ -1,12 +1,11 @@
 import React from 'react';
 import { WhatsappLogo } from '@phosphor-icons/react';
-import { getWhatsAppUrl } from '../../utils/whatsapp';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/whatsapp';
 import { useSiteSettings } from '../../hooks/useAdminStore';
 
 export const FloatingWhatsApp: React.FC = () => {
   const settings = useSiteSettings();
   const whatsAppUrl = getWhatsAppUrl('السلام عليكم شركة المجد، أود الاستفسار عن تفصيل وتصميم مطبخ عصري أو ديكور داخلي.', settings.whatsapp);
-
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex items-center">
@@ -14,6 +13,7 @@ export const FloatingWhatsApp: React.FC = () => {
         href={whatsAppUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={trackWhatsAppClick}
         className="group flex items-center gap-2.5 px-4 py-3 sm:px-5 sm:py-3.5 rounded-full bg-[#25D366] text-white shadow-2xl hover:bg-[#20bd5a] hover:scale-105 active:scale-95 transition-all duration-300 border border-white/25"
         aria-label="تواصل عبر واتساب"
         title="تواصل عبر واتساب"

@@ -387,14 +387,15 @@ class AdminStore {
         if (parsed.lastVisitDate !== todayStr) {
           parsed.lastVisitDate = todayStr;
           parsed.todayVisits = Math.floor(Math.random() * 8) + 12; // Realistic start for today
-          this.saveAnalytics(parsed);
+          try {
+            localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(parsed));
+          } catch {}
         }
         return { ...DEFAULT_ANALYTICS, ...parsed };
       }
     } catch (e) {
       console.error('Error reading analytics:', e);
     }
-    this.saveAnalytics(DEFAULT_ANALYTICS);
     return DEFAULT_ANALYTICS;
   }
 
@@ -410,13 +411,13 @@ class AdminStore {
   recordPageView(pagePath: string) {
     try {
       const analytics = this.getAnalytics();
-      analytics.totalVisits += 1;
-      analytics.todayVisits += 1;
+      analytics.totalVisits = (analytics.totalVisits || 0) + 1;
+      analytics.todayVisits = (analytics.todayVisits || 0) + 1;
 
       // Check unique visitor
       if (!sessionStorage.getItem(STORAGE_KEYS.VISITOR_ID)) {
         sessionStorage.setItem(STORAGE_KEYS.VISITOR_ID, 'v-' + Date.now());
-        analytics.uniqueVisitors += 1;
+        analytics.uniqueVisitors = (analytics.uniqueVisitors || 0) + 1;
       }
 
       // Normalise page key
@@ -427,6 +428,7 @@ class AdminStore {
       else if (pagePath.includes('/contact')) key = 'contact';
       else if (pagePath.includes('/request')) key = 'project-request';
 
+      analytics.pageViews = analytics.pageViews || {};
       analytics.pageViews[key] = (analytics.pageViews[key] || 0) + 1;
 
       // Dynamic active visitors (3 - 7)
@@ -444,9 +446,10 @@ class AdminStore {
       const design = designs.find(d => d.id === designId);
       if (design) {
         design.views = (design.views || 0) + 1;
-        this.saveDesigns([...designs]);
+        try {
+          localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(designs));
+        } catch {}
       }
-      this.recordPageView('/designs/' + designId);
     } catch (e) {
       console.error('Error recording design view:', e);
     }

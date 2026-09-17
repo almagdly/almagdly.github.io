@@ -7,13 +7,13 @@ export const getWhatsAppUrl = (message: string, phone?: string): string => {
   const targetPhone = phone || adminStore.getSettings().whatsapp || OFFICIAL_WHATSAPP_NUMBER;
   const cleanPhone = targetPhone.replace(/[^0-9]/g, '');
   const encodedMessage = encodeURIComponent(message.trim());
-  
-  // Track conversion click
+  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+};
+
+export const trackWhatsAppClick = () => {
   try {
     adminStore.recordWhatsAppClick();
   } catch {}
-
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 };
 
 
