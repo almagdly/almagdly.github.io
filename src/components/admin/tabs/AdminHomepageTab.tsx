@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   House,
   Star,
@@ -6,10 +6,13 @@ import {
   FloppyDisk,
   CheckCircle,
   MagnifyingGlass,
-  Funnel,
   Sparkle,
-  Image as ImageIcon,
   Check,
+  Trash,
+  X,
+  ArrowUp,
+  ArrowDown,
+  Plus,
 } from '@phosphor-icons/react';
 import { DesignItem, CategoryType } from '../../../types';
 import { SiteSettings } from '../../../types/admin';
@@ -29,7 +32,7 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
   );
   const [heroSaveSuccess, setHeroSaveSuccess] = useState(false);
 
-  // Featured search & filter
+  // Search & filter for adding designs
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
 
@@ -42,9 +45,17 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
     { id: 'interior-design', label: 'ديكورات' },
   ];
 
-  const featuredDesigns = designs.filter(d => d.isFeatured);
+  // Curated homepage list
+  const homepageIds = settings.homepageDesignIds && settings.homepageDesignIds.length > 0
+    ? settings.homepageDesignIds
+    : adminStore.getHomepageDesignIds();
 
-  const filteredDesigns = designs.filter(d => {
+  const homepageDesigns = homepageIds
+    .map(id => designs.find(d => d.id === id))
+    .filter((d): d is DesignItem => Boolean(d));
+
+  const filteredAvailableDesigns = designs.filter(d => {
+    if (homepageIds.includes(d.id)) return false;
     if (selectedCategory !== 'all' && d.category !== selectedCategory) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -76,8 +87,36 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleToggleFeatured = (item: DesignItem) => {
-    adminStore.toggleFeatured(item.id);
+  const handleRemoveFromHomepage = (id: string) => {
+    adminStore.removeFromHomepage(id);
+  };
+
+  const handleAddToHomepage = (id: string) => {
+    adminStore.addToHomepage(id);
+  };
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const updated = [...homepageIds];
+    const temp = updated[index];
+    updated[index] = updated[index - 1];
+    updated[index - 1] = temp;
+    adminStore.reorderHomepage(updated);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === homepageIds.length - 1) return;
+    const updated = [...homepageIds];
+    const temp = updated[index];
+    updated[index] = updated[index + 1];
+    updated[index + 1] = temp;
+    adminStore.reorderHomepage(updated);
+  };
+
+  const handleDeleteDesign = (item: DesignItem) => {
+    if (window.confirm(`هل أنت متأكد من حذف تصميم "${item.title}" نهائياً من الموقع؟`)) {
+      adminStore.deleteDesign(item.id);
+    }
   };
 
   return (
@@ -217,7 +256,7 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
         </form>
       </div>
 
-      {/* 2. Featured Projects on Homepage (المشاريع المميزة بالرئيسية) */}
+      {/* 2. Currently Featured Projects on Homepage (المشاريع المعروضة حالياً بالرئيسية) */}
       <div className="p-6 rounded-2xl bg-brand-surface border border-brand-gold/25 space-y-6 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-gold/15 pb-4">
           <div className="flex items-center gap-2.5">
@@ -226,18 +265,117 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
             </div>
             <div>
               <h3 className="text-sm font-bold text-brand-ivory">
-                المشاريع المختارة المعروضة بالرئيسية (Featured Projects)
+                المشاريع المعروضة حالياً في الصفحة الرئيسية
               </h3>
               <p className="text-[11px] text-brand-ivory/60">
-                انقر على النجمة ⭐ بجانب أي تصميم لإضافته أو إزالته فوراً من واجهة الصفحة الرئيسية
+                هذه المشاريع تظهر مباشرة للزوار في واجهة الموقع. يمكنك حذفها، إزالتها، أو إعادة ترتيبها.
               </p>
             </div>
           </div>
 
           <div className="px-3 py-1.5 rounded-xl bg-black/40 border border-brand-gold/20 text-xs text-brand-gold font-bold flex items-center gap-2">
             <span>المعروض حالياً:</span>
-            <span className="font-mono text-white text-sm">{featuredDesigns.length}</span>
+            <span className="font-mono text-white text-sm">{homepageDesigns.length}</span>
             <span>تصميم</span>
+          </div>
+        </div>
+
+        {homepageDesigns.length === 0 ? (
+          <div className="p-8 text-center rounded-xl bg-black/20 border border-dashed border-white/10 text-brand-ivory/50 text-xs">
+            لم يتم اختيار أي مشاريع لعرضها بالرئيسية حالياً. اختر من القائمة أدناه لإضافتها.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {homepageDesigns.map((item, index) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 p-3 rounded-xl bg-black/40 border border-brand-gold/30 hover:border-brand-gold/60 transition-all shadow-md group"
+              >
+                {/* Thumbnail & Position */}
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-neutral-900 border border-white/10">
+                  <img
+                    src={item.mainImage}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={e => {
+                      (e.target as HTMLImageElement).src = './projects/p1.jpg';
+                    }}
+                  />
+                  <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-black/80 text-[10px] font-mono font-bold text-brand-gold">
+                    #{index + 1}
+                  </span>
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <h4 className="text-xs font-bold text-brand-ivory truncate">{item.title}</h4>
+                  <p className="text-[10px] text-brand-gold truncate">{item.categoryArabic}</p>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFromHomepage(item.id)}
+                      className="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/30 flex items-center gap-1 transition-all"
+                      title="إزالة هذا المشروع من الظهور في الصفحة الرئيسية"
+                    >
+                      <X size={12} weight="bold" />
+                      <span>إزالة من الرئيسية</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDesign(item)}
+                      className="p-1 rounded-lg text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/20 transition-all"
+                      title="حذف هذا التصميم نهائياً من الموقع"
+                    >
+                      <Trash size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Reorder Buttons */}
+                <div className="flex flex-col gap-1 shrink-0 border-r border-white/10 pr-2">
+                  <button
+                    type="button"
+                    disabled={index === 0}
+                    onClick={() => handleMoveUp(index)}
+                    className="p-1 rounded bg-white/5 hover:bg-brand-gold/20 text-brand-ivory/70 hover:text-brand-gold disabled:opacity-20 disabled:pointer-events-none transition-all"
+                    title="تحريك للأعلى"
+                  >
+                    <ArrowUp size={12} weight="bold" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={index === homepageDesigns.length - 1}
+                    onClick={() => handleMoveDown(index)}
+                    className="p-1 rounded bg-white/5 hover:bg-brand-gold/20 text-brand-ivory/70 hover:text-brand-gold disabled:opacity-20 disabled:pointer-events-none transition-all"
+                    title="تحريك للأسفل"
+                  >
+                    <ArrowDown size={12} weight="bold" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 3. Add More Designs to Homepage (إضافة تصاميم إلى الصفحة الرئيسية) */}
+      <div className="p-6 rounded-2xl bg-brand-surface border border-brand-gold/25 space-y-6 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-gold/15 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <Plus size={20} weight="bold" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-ivory">
+                إضافة تصاميم جديدة إلى الصفحة الرئيسية
+              </h3>
+              <p className="text-[11px] text-brand-ivory/60">
+                اختر أي تصميم من المعرض واضغط على "إضافة للرئيسية" ليظهر فوراً في واجهة الموقع
+              </p>
+            </div>
           </div>
         </div>
 
@@ -251,7 +389,7 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن تصميم بالاسم أو الوسم لتمييزه..."
+              placeholder="ابحث عن تصميم بالاسم أو الوسم لإضافته..."
               className="w-full pl-4 pr-10 py-2.5 bg-black/40 border border-brand-gold/25 rounded-xl text-xs text-brand-ivory placeholder:text-brand-ivory/30 focus:outline-none focus:border-brand-gold"
             />
           </div>
@@ -271,55 +409,58 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
           </div>
         </div>
 
-        {/* Designs Grid with 1-click Featured Star */}
+        {/* Available Designs Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto p-1">
-          {filteredDesigns.map(item => {
-            const isFeatured = item.isFeatured;
-            return (
+          {filteredAvailableDesigns.length === 0 ? (
+            <div className="col-span-full py-8 text-center text-xs text-brand-ivory/40">
+              لا توجد تصاميم مطابقة للبحث أو أن جميع التصاميم المختارة مضافة للرئيسية بالفعل.
+            </div>
+          ) : (
+            filteredAvailableDesigns.map(item => (
               <div
                 key={item.id}
-                onClick={() => handleToggleFeatured(item)}
-                className={`relative rounded-xl overflow-hidden border p-2 cursor-pointer transition-all ${
-                  isFeatured
-                    ? 'bg-amber-500/10 border-amber-400/50 shadow-md ring-1 ring-amber-400/30'
-                    : 'bg-black/30 border-white/10 hover:border-brand-gold/40'
-                }`}
+                className="relative rounded-xl overflow-hidden border border-white/10 hover:border-brand-gold/40 p-2.5 bg-black/30 transition-all flex flex-col justify-between"
               >
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-2 bg-black/40">
-                  <img
-                    src={item.mainImage}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    onError={e => {
-                      (e.target as HTMLImageElement).src = './projects/p1.jpg';
-                    }}
-                  />
-                  {/* Star Toggle Badge */}
+                <div>
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-2 bg-black/40">
+                    <img
+                      src={item.mainImage}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      onError={e => {
+                        (e.target as HTMLImageElement).src = './projects/p1.jpg';
+                      }}
+                    />
+                  </div>
+
+                  <div className="space-y-0.5 mb-3">
+                    <h4 className="text-xs font-bold text-brand-ivory truncate">{item.title}</h4>
+                    <p className="text-[10px] text-brand-gold truncate">{item.categoryArabic}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-1 border-t border-white/5">
                   <button
                     type="button"
-                    className={`absolute top-2 left-2 p-1.5 rounded-lg backdrop-blur-md transition-transform active:scale-90 ${
-                      isFeatured
-                        ? 'bg-amber-400 text-brand-dark shadow-md'
-                        : 'bg-black/60 text-white/50 hover:text-white'
-                    }`}
+                    onClick={() => handleAddToHomepage(item.id)}
+                    className="flex-1 py-1.5 px-2 rounded-lg text-[10px] font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1 transition-all"
                   >
-                    <Star size={16} weight={isFeatured ? 'fill' : 'regular'} />
+                    <Plus size={12} weight="bold" />
+                    <span>إضافة للرئيسية</span>
                   </button>
 
-                  {isFeatured && (
-                    <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-bold text-amber-300">
-                      معروض بالرئيسية
-                    </span>
-                  )}
-                </div>
-
-                <div className="space-y-0.5">
-                  <h4 className="text-xs font-bold text-brand-ivory truncate">{item.title}</h4>
-                  <p className="text-[10px] text-brand-gold truncate">{item.categoryArabic}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteDesign(item)}
+                    className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition-all"
+                    title="حذف هذا التصميم نهائياً من الموقع"
+                  >
+                    <Trash size={14} />
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            ))
+          )}
         </div>
       </div>
     </div>

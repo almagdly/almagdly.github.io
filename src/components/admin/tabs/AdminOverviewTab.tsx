@@ -61,9 +61,19 @@ export const AdminOverviewTab: React.FC<Props> = ({
   const recentInquiries = inquiries.slice(0, 4);
   const recentDesigns = designs.slice(0, 4);
 
-  const handleSimulateInquiry = () => {
-    adminStore.simulateCustomerInquiry();
-  };
+  // Real traffic & page views computations
+  const totalPageViews = Object.values(analytics.pageViews || {}).reduce((acc, v) => acc + v, 0);
+  const homePv = analytics.pageViews?.home || 0;
+  const designsPv = analytics.pageViews?.designs || 0;
+  const detailPv = analytics.pageViews?.['design-detail'] || 0;
+  const servicesPv = analytics.pageViews?.services || 0;
+  const contactPv = analytics.pageViews?.contact || 0;
+  const requestPv = analytics.pageViews?.['project-request'] || 0;
+
+  const totalDevices = (analytics.devices?.mobile || 0) + (analytics.devices?.desktop || 0) + (analytics.devices?.tablet || 0);
+  const mobilePct = totalDevices > 0 ? Math.round(((analytics.devices?.mobile || 0) / totalDevices) * 100) : 0;
+  const desktopPct = totalDevices > 0 ? Math.round(((analytics.devices?.desktop || 0) / totalDevices) * 100) : 0;
+  const tabletPct = totalDevices > 0 ? Math.round(((analytics.devices?.tablet || 0) / totalDevices) * 100) : 0;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -79,7 +89,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
               مرحباً بك في مركز إدارة شركة <span className="text-gold-gradient">المجد</span>
             </h2>
             <p className="text-xs sm:text-sm text-brand-ivory/70 max-w-xl font-light">
-              متابعة دقيقة لحركة الزيارات، وإدارة طلبات العملاء الواردة من البيضاء والجبل الأخضر، وتحديث محتوى المعرض فورياً.
+              متابعة دقيقة لحركة الزيارات الحقيقية، وإدارة طلبات العملاء، وتحديث محتوى المعرض فورياً.
             </p>
           </div>
 
@@ -98,19 +108,11 @@ export const AdminOverviewTab: React.FC<Props> = ({
               <ChatTeardropDots size={18} weight="duotone" />
               <span>مراجعة الطلبات ({newInquiriesCount})</span>
             </button>
-            <button
-              onClick={handleSimulateInquiry}
-              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all"
-              title="محاكاة وصول طلب جديد من عميل للتجربة"
-            >
-              <Lightning size={16} weight="fill" className="text-emerald-400" />
-              <span>محاكاة طلب تجريبي</span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Top 5 KPI Cards */}
+      {/* Top 5 KPI Cards (Real Live Metrics) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5">
         {/* Total Visits */}
         <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
@@ -118,35 +120,51 @@ export const AdminOverviewTab: React.FC<Props> = ({
             <div className="w-10 h-10 rounded-xl bg-brand-gold/15 flex items-center justify-center text-brand-gold">
               <Globe size={22} weight="duotone" />
             </div>
-            <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-              <TrendUp size={13} weight="bold" />
-              <span>+14.8%</span>
+            <span className="text-[10px] font-bold text-brand-gold bg-brand-gold/10 px-2 py-0.5 rounded-full">
+              تتبع حي
             </span>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {analytics.totalVisits.toLocaleString('ar-LY')}
             </h3>
-            <p className="text-xs text-brand-ivory/60">إجمالي زيارات الموقع</p>
+            <p className="text-xs text-brand-ivory/60">إجمالي زيارات الموقع الفعلية</p>
           </div>
         </div>
 
-        {/* Today's Visits & Active Now */}
+        {/* Today's Visits */}
         <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400">
               <Users size={22} weight="duotone" />
             </div>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              <span>{analytics.activeVisitorsNow} الآن</span>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              اليوم
             </span>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {analytics.todayVisits}
             </h3>
-            <p className="text-xs text-brand-ivory/60">زيارات اليوم للموقع</p>
+            <p className="text-xs text-brand-ivory/60">زيارات اليوم المسجلة</p>
+          </div>
+        </div>
+
+        {/* Unique Visitors */}
+        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400">
+              <Users size={22} weight="duotone" />
+            </div>
+            <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
+              أجهزة فريدة
+            </span>
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
+              {analytics.uniqueVisitors}
+            </h3>
+            <p className="text-xs text-brand-ivory/60">عدد الزوار الفريدين</p>
           </div>
         </div>
 
@@ -160,7 +178,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
               <ChatTeardropDots size={22} weight="duotone" />
             </div>
             {newInquiriesCount > 0 ? (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
                 {newInquiriesCount} جديد
               </span>
             ) : (
@@ -174,25 +192,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
             <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {inquiries.length}
             </h3>
-            <p className="text-xs text-brand-ivory/60">طلبات واستفسارات واردة</p>
-          </div>
-        </div>
-
-        {/* Gallery Interaction */}
-        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400">
-              <Eye size={22} weight="duotone" />
-            </div>
-            <span className="text-[11px] text-sky-400/80 font-medium font-mono">
-              {designs.length} تصميم
-            </span>
-          </div>
-          <div>
-            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
-              {totalViews.toLocaleString('ar-LY')}
-            </h3>
-            <p className="text-xs text-brand-ivory/60">إجمالي مشاهدات الأعمال</p>
+            <p className="text-xs text-brand-ivory/60">طلبات العملاء الواردة</p>
           </div>
         </div>
 
@@ -202,103 +202,136 @@ export const AdminOverviewTab: React.FC<Props> = ({
             <div className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center text-green-400">
               <WhatsappLogo size={22} weight="fill" />
             </div>
-            <span className="text-[11px] text-green-400/80 font-medium">معدل تحويل</span>
+            <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
+              نقرات حقيقية
+            </span>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {analytics.whatsappClicks}
             </h3>
-            <p className="text-xs text-brand-ivory/60">استفسارات بدأت عبر واتساب</p>
+            <p className="text-xs text-brand-ivory/60">نقرات التواصل عبر واتساب</p>
           </div>
         </div>
       </div>
 
-      {/* Realistic Analytics & Geographic Distribution Panel */}
+      {/* Real Analytics Breakdown: Page Views & Devices */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 Cols: Geographic & Audience Split */}
+        {/* Left 7 Cols: Real Page Views Breakdown */}
         <div className="lg:col-span-7 p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-5">
           <div className="flex items-center justify-between border-b border-brand-gold/15 pb-3">
             <div className="flex items-center gap-2">
-              <MapPin size={18} className="text-brand-gold" weight="duotone" />
+              <Globe size={18} className="text-brand-gold" weight="duotone" />
               <h3 className="text-sm font-bold text-brand-ivory">
-                التوزيع الجغرافي لزوار الموقع (ليبيا)
+                توزيع الزيارات حسب صفحات الموقع الفعلية
               </h3>
             </div>
-            <span className="text-[11px] text-brand-ivory/50">تتبع حي لنطاق المنطقة</span>
+            <span className="text-[11px] text-brand-ivory/50">
+              {totalPageViews} تصفح مسجل
+            </span>
           </div>
 
           <div className="space-y-3.5">
-            {/* Al-Bayda */}
+            {/* Home */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-brand-ivory font-medium">مدينة البيضاء (المركز الرئيسي)</span>
-                <span className="font-bold text-brand-gold font-mono">44%</span>
+                <span className="text-brand-ivory font-medium">الصفحة الرئيسية</span>
+                <span className="font-bold text-brand-gold font-mono">
+                  {homePv} زيارة {totalPageViews > 0 ? `(${Math.round((homePv / totalPageViews) * 100)}%)` : ''}
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-brand-gold to-amber-500" style={{ width: '44%' }} />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-brand-gold to-amber-500 transition-all duration-500"
+                  style={{ width: `${totalPageViews > 0 ? Math.round((homePv / totalPageViews) * 100) : 0}%` }}
+                />
               </div>
             </div>
 
-            {/* Benghazi */}
+            {/* Designs */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-brand-ivory font-medium">بنغازي الكبرى</span>
-                <span className="font-bold text-brand-gold font-mono">24%</span>
+                <span className="text-brand-ivory font-medium">معرض التصاميم والمشاريع</span>
+                <span className="font-bold text-sky-400 font-mono">
+                  {designsPv} زيارة {totalPageViews > 0 ? `(${Math.round((designsPv / totalPageViews) * 100)}%)` : ''}
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-500" style={{ width: '24%' }} />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-500 transition-all duration-500"
+                  style={{ width: `${totalPageViews > 0 ? Math.round((designsPv / totalPageViews) * 100) : 0}%` }}
+                />
               </div>
             </div>
 
-            {/* Shahat & Sahel */}
+            {/* Design Detail */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-brand-ivory font-medium">شحات، سوسة، والساحل الشرقي</span>
-                <span className="font-bold text-brand-gold font-mono">16%</span>
+                <span className="text-brand-ivory font-medium">صفحات تفاصيل التصميم</span>
+                <span className="font-bold text-emerald-400 font-mono">
+                  {detailPv} زيارة {totalPageViews > 0 ? `(${Math.round((detailPv / totalPageViews) * 100)}%)` : ''}
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" style={{ width: '16%' }} />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                  style={{ width: `${totalPageViews > 0 ? Math.round((detailPv / totalPageViews) * 100) : 0}%` }}
+                />
               </div>
             </div>
 
-            {/* Derna */}
+            {/* Services */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-brand-ivory font-medium">درنة والقبة</span>
-                <span className="font-bold text-brand-gold font-mono">11%</span>
+                <span className="text-brand-ivory font-medium">صفحة الخدمات والحلول</span>
+                <span className="font-bold text-purple-400 font-mono">
+                  {servicesPv} زيارة {totalPageViews > 0 ? `(${Math.round((servicesPv / totalPageViews) * 100)}%)` : ''}
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500" style={{ width: '11%' }} />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500"
+                  style={{ width: `${totalPageViews > 0 ? Math.round((servicesPv / totalPageViews) * 100) : 0}%` }}
+                />
               </div>
             </div>
 
-            {/* Tobruk & Al-Marj */}
+            {/* Contact & Request */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-brand-ivory font-medium">طبرق، المرج، ومناطق أخرى</span>
-                <span className="font-bold text-brand-gold font-mono">5%</span>
+                <span className="text-brand-ivory font-medium">صفحات التواصل وطلب مشروع</span>
+                <span className="font-bold text-rose-400 font-mono">
+                  {contactPv + requestPv} زيارة {totalPageViews > 0 ? `(${Math.round(((contactPv + requestPv) / totalPageViews) * 100)}%)` : ''}
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-amber-600 to-rose-500" style={{ width: '5%' }} />
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-600 to-rose-500 transition-all duration-500"
+                  style={{ width: `${totalPageViews > 0 ? Math.round(((contactPv + requestPv) / totalPageViews) * 100) : 0}%` }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Device & Traffic Sources summary */}
+          {/* Real Device Breakdown summary */}
           <div className="pt-3 border-t border-brand-gold/15 grid grid-cols-2 gap-4 text-xs">
             <div className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center gap-3">
               <DeviceMobile size={22} className="text-brand-gold shrink-0" weight="duotone" />
               <div>
-                <span className="text-[11px] text-brand-ivory/60 block">نوع الأجهزة الأكثر استخداماً</span>
-                <span className="font-bold text-brand-ivory">84% هواتف ذكية (Mobile)</span>
+                <span className="text-[11px] text-brand-ivory/60 block">الهواتف الذكية (Mobile)</span>
+                <span className="font-bold text-brand-ivory">
+                  {totalDevices > 0 ? `${mobilePct}% (${analytics.devices?.mobile || 0} زيارة)` : 'في انتظار الزيارات'}
+                </span>
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center gap-3">
               <Globe size={22} className="text-emerald-400 shrink-0" weight="duotone" />
               <div>
-                <span className="text-[11px] text-brand-ivory/60 block">المصدر الأبرز للزيارات</span>
-                <span className="font-bold text-brand-ivory">68% فيسبوك وتيك توك</span>
+                <span className="text-[11px] text-brand-ivory/60 block">أجهزة الكمبيوتر (Desktop)</span>
+                <span className="font-bold text-brand-ivory">
+                  {totalDevices > 0 ? `${desktopPct}% (${analytics.devices?.desktop || 0} زيارة)` : 'في انتظار الزيارات'}
+                </span>
               </div>
             </div>
           </div>

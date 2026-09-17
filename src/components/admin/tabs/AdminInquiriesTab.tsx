@@ -72,9 +72,7 @@ export const AdminInquiriesTab: React.FC<Props> = ({ inquiries }) => {
     }
   };
 
-  const handleSimulate = () => {
-    adminStore.simulateCustomerInquiry();
-  };
+
 
   const handleCopy = (item: InquiryItem) => {
     const text = `طلب عميل شركة المجد:
@@ -132,15 +130,7 @@ export const AdminInquiriesTab: React.FC<Props> = ({ inquiries }) => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Simulate Button */}
-          <button
-            onClick={handleSimulate}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all"
-            title="توليد طلب تجريبي واقعي للاختبار"
-          >
-            <Lightning size={16} weight="fill" className="text-emerald-400" />
-            <span>محاكاة طلب تجريبي</span>
-          </button>
+
 
           {/* Add Manual Request */}
           <button

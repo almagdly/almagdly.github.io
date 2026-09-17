@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAdminDesigns } from '../../hooks/useAdminStore';
+import { useAdminDesigns, useSiteSettings } from '../../hooks/useAdminStore';
 import { DesignCard } from '../gallery/DesignCard';
 import { DesignItem } from '../../types';
 import { ArrowLeft, Sparkle } from '@phosphor-icons/react';
@@ -11,7 +11,22 @@ interface FeaturedDesignsProps {
 
 export const FeaturedDesigns: React.FC<FeaturedDesignsProps> = ({ onQuickView }) => {
   const designsData = useAdminDesigns();
-  const featured = designsData.filter(d => d.isFeatured).slice(0, 6);
+  const settings = useSiteSettings();
+
+  // Curate designs according to admin settings
+  let featured: DesignItem[] = [];
+  if (settings.homepageDesignIds && settings.homepageDesignIds.length > 0) {
+    featured = settings.homepageDesignIds
+      .map(id => designsData.find(d => d.id === id))
+      .filter((d): d is DesignItem => Boolean(d));
+  } else {
+    featured = designsData.filter(d => d.isFeatured);
+  }
+
+  // If still empty (e.g. all deleted/unselected), fallback to top 6 designs
+  if (featured.length === 0 && designsData.length > 0) {
+    featured = designsData.slice(0, 6);
+  }
 
   return (
     <section className="py-16 sm:py-24 bg-brand-dark relative">

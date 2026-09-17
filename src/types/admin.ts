@@ -23,6 +23,7 @@ export interface SiteSettings {
   adminPin: string;
   heroImage?: string;
   heroTagline?: string;
+  homepageDesignIds?: string[];
 }
 export interface SiteAnalytics {
   totalVisits: number;
@@ -31,5 +32,9 @@ export interface SiteAnalytics {
   uniqueVisitors: number;
   whatsappClicks: number;
   pageViews: Record<string, number>;
-  activeVisitorsNow: number;
+  devices?: {
+    mobile: number;
+    desktop: number;
+    tablet: number;
+  };
 }
