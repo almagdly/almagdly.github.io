@@ -1,6 +1,7 @@
-﻿import React from 'react';
-import { SignOut, ArrowSquareOut, List, Bell, ShieldCheck } from '@phosphor-icons/react';
+import React, { useState } from 'react';
+import { SignOut, ArrowSquareOut, List, Bell, ShieldCheck, CloudArrowUp, CircleNotch, CheckCircle } from '@phosphor-icons/react';
 import { adminStore } from '../../services/adminStore';
+import { githubSync } from '../../services/githubSync';
 
 interface Props {
   onToggleSidebar: () => void;
@@ -13,14 +14,36 @@ export const AdminHeader: React.FC<Props> = ({
   unreadInquiriesCount,
   onSelectInquiriesTab,
 }) => {
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishMessage, setPublishMessage] = useState<string | null>(null);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+
   const handleLogout = () => {
     if (window.confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟')) {
       adminStore.logout();
     }
   };
 
+  const handlePublishToGitHub = async () => {
+    setIsPublishing(true);
+    setPublishMessage(null);
+    try {
+      const res = await githubSync.publishToGitHub();
+      setPublishSuccess(res.success);
+      setPublishMessage(res.message);
+      if (res.success) {
+        setTimeout(() => setPublishMessage(null), 6000);
+      }
+    } catch (err: any) {
+      setPublishSuccess(false);
+      setPublishMessage(err.message || 'فشلت المزامنة مع GitHub');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-30 bg-brand-surface/95 backdrop-blur-md border-b border-brand-gold/20 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md">
+    <header className="sticky top-0 z-30 bg-brand-surface/95 backdrop-blur-md border-b border-brand-gold/20 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-md">
       {/* Right Side: Brand & Mobile Toggle */}
       <div className="flex items-center gap-3 sm:gap-4">
         <button
@@ -44,8 +67,32 @@ export const AdminHeader: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Left Side: Actions */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      {/* Left Side: Actions & GitHub Sync */}
+      <div className="flex items-center flex-wrap gap-2 sm:gap-3">
+        {/* Sync / Publish to GitHub Button */}
+        <button
+          onClick={handlePublishToGitHub}
+          disabled={isPublishing}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+            isPublishing
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-wait'
+              : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-900/30 active:scale-95'
+          }`}
+          title="نشر وحفظ التعديلات فوراً إلى مستودع GitHub والموقع الحي"
+        >
+          {isPublishing ? (
+            <>
+              <CircleNotch size={16} className="animate-spin" />
+              <span>جاري النشر للمستودع...</span>
+            </>
+          ) : (
+            <>
+              <CloudArrowUp size={18} weight="bold" />
+              <span>نشر التعديلات للمستودع والموقع</span>
+            </>
+          )}
+        </button>
+
         {/* Notification Bell */}
         <button
           onClick={onSelectInquiriesTab}
@@ -74,13 +121,35 @@ export const AdminHeader: React.FC<Props> = ({
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 transition-colors"
           title="تسجيل الخروج"
         >
           <SignOut size={16} weight="bold" />
           <span className="hidden sm:inline">خروج</span>
         </button>
       </div>
+
+      {/* Publish Feedback Message Banner */}
+      {publishMessage && (
+        <div
+          className={`w-full p-2.5 rounded-xl text-xs flex items-center justify-between gap-2 border transition-all ${
+            publishSuccess
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+              : 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {publishSuccess && <CheckCircle size={16} weight="fill" className="text-emerald-400 shrink-0" />}
+            <span>{publishMessage}</span>
+          </div>
+          <button
+            onClick={() => setPublishMessage(null)}
+            className="text-[11px] font-bold underline opacity-70 hover:opacity-100"
+          >
+            إغلاق
+          </button>
+        </div>
+      )}
     </header>
   );
 };

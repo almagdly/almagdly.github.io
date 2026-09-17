@@ -24,6 +24,11 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
+  // Fetch latest published data from repo for all visitors
+  React.useEffect(() => {
+    adminStore.fetchRemotePublishedData();
+  }, []);
+
   // Real-time visitor analytics tracking
   React.useEffect(() => {
     if (!isAdminRoute) {

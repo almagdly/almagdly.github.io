@@ -13,6 +13,27 @@ const STORAGE_KEYS = {
   VISITOR_ID: 'almagd_visitor_uuid',
 };
 
+export function getInitialGithubToken(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    // Check if passed via URL parameter for one-time device setup
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('gh_token');
+    if (urlToken) {
+      localStorage.setItem('almagd_gh_token', urlToken);
+      urlParams.delete('gh_token');
+      const newQuery = urlParams.toString();
+      const newUrl = window.location.pathname + (newQuery ? `?${newQuery}` : '') + window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+      return urlToken;
+    }
+
+    return localStorage.getItem('almagd_gh_token') || '';
+  } catch {
+    return '';
+  }
+}
+
 export const DEFAULT_SETTINGS: SiteSettings = {
   phone: '094 5919679',
   whatsapp: '218945919679',
@@ -24,6 +45,10 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroImage: './projects/p1.jpg',
   heroTagline: 'شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء',
   homepageDesignIds: ['p1', 'p2', 'p3', 'p7', 'p10', 'p11'],
+  githubToken: getInitialGithubToken(),
+  githubRepo: 'almagdly/almagdly.github.io',
+  githubBranch: 'main',
+  autoSyncToGithub: true,
 };
 
 export const DEFAULT_ANALYTICS: SiteAnalytics = {
@@ -306,17 +331,30 @@ class AdminStore {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (saved) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          githubToken: parsed.githubToken || getInitialGithubToken(),
+        };
       }
     } catch (e) {
       console.error('Error reading settings:', e);
     }
-    return DEFAULT_SETTINGS;
+    return {
+      ...DEFAULT_SETTINGS,
+      githubToken: getInitialGithubToken(),
+    };
   }
 
   updateSettings(updates: Partial<SiteSettings>) {
     const current = this.getSettings();
     const updated = { ...current, ...updates };
+    if (updates.githubToken !== undefined) {
+      try {
+        localStorage.setItem('almagd_gh_token', updates.githubToken || '');
+      } catch {}
+    }
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
     notifyListeners();
   }
@@ -502,6 +540,55 @@ class AdminStore {
     } catch (err: any) {
       return { success: false, message: 'فشل استيراد الملف: ' + err.message };
     }
+  }
+
+  // === PUBLISHED DATA SYNC ===
+  applyPublishedData(data: {
+    settings?: Partial<SiteSettings>;
+    designs?: DesignItem[];
+    beforeAfter?: BeforeAfterItem[];
+  }) {
+    if (data.designs && Array.isArray(data.designs) && data.designs.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(data.designs));
+      } catch {}
+    }
+    if (data.beforeAfter && Array.isArray(data.beforeAfter) && data.beforeAfter.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(data.beforeAfter));
+      } catch {}
+    }
+    if (data.settings && typeof data.settings === 'object') {
+      const current = this.getSettings();
+      const merged = {
+        ...data.settings,
+        githubToken: current.githubToken || getInitialGithubToken(),
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(merged));
+      } catch {}
+    }
+    notifyListeners();
+  }
+
+  async fetchRemotePublishedData() {
+    try {
+      const urls = [
+        `./site-data.json?t=${Date.now()}`,
+        `https://raw.githubusercontent.com/almagdly/almagdly.github.io/main/docs/site-data.json?t=${Date.now()}`,
+      ];
+      for (const u of urls) {
+        const res = await fetch(u);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.designs && Array.isArray(data.designs)) {
+            this.applyPublishedData(data);
+            return true;
+          }
+        }
+      }
+    } catch {}
+    return false;
   }
 
   // === REACT SUBSCRIPTION ===

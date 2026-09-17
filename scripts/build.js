@@ -36,4 +36,10 @@ if (fs.existsSync(projectsDist)) {
   fs.cpSync(projectsDist, projectsRoot, { recursive: true });
 }
 
+const siteDataDist = path.join(rootDir, 'dist', 'site-data.json');
+const siteDataRoot = path.join(rootDir, 'site-data.json');
+if (fs.existsSync(siteDataDist)) {
+  fs.copyFileSync(siteDataDist, siteDataRoot);
+}
+
 console.log('Build and multi-target sync completed successfully!');

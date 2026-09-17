@@ -24,6 +24,11 @@ export interface SiteSettings {
   heroImage?: string;
   heroTagline?: string;
   homepageDesignIds?: string[];
+  githubToken?: string;
+  githubRepo?: string;
+  githubBranch?: string;
+  autoSyncToGithub?: boolean;
+  lastSyncTime?: string;
 }
 export interface SiteAnalytics {
   totalVisits: number;

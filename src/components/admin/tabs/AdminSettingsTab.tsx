@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Gear,
   FloppyDisk,
@@ -9,9 +9,15 @@ import {
   Clock,
   CheckCircle,
   ShieldCheck,
+  CloudArrowUp,
+  ArrowClockwise,
+  GitBranch,
+  CircleNotch,
+  WarningCircle,
 } from '@phosphor-icons/react';
 import { SiteSettings } from '../../../types/admin';
 import { adminStore } from '../../../services/adminStore';
+import { githubSync } from '../../../services/githubSync';
 
 interface Props {
   settings: SiteSettings;
@@ -24,6 +30,57 @@ export const AdminSettingsTab: React.FC<Props> = ({ settings }) => {
   const [confirmPin, setConfirmPin] = useState('');
   const [pinMessage, setPinMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleTestGitHub = async () => {
+    setIsSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await githubSync.testConnection();
+      setSyncStatus({
+        type: res.success ? 'success' : 'error',
+        text: res.message,
+      });
+    } catch (e: any) {
+      setSyncStatus({ type: 'error', text: e.message || 'فشل الاتصال' });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handlePushGitHub = async () => {
+    setIsSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await githubSync.publishToGitHub();
+      setSyncStatus({
+        type: res.success ? 'success' : 'error',
+        text: res.message,
+      });
+    } catch (e: any) {
+      setSyncStatus({ type: 'error', text: e.message || 'فشلت المزامنة' });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handlePullGitHub = async () => {
+    setIsSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await githubSync.pullFromRemote();
+      setSyncStatus({
+        type: res.success ? 'success' : 'error',
+        text: res.message,
+      });
+    } catch (e: any) {
+      setSyncStatus({ type: 'error', text: e.message || 'فشل السحب' });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleSettingsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,6 +297,152 @@ export const AdminSettingsTab: React.FC<Props> = ({ settings }) => {
           </button>
         </div>
       </form>
+
+      {/* GitHub Synchronization Card */}
+      <div className="p-6 rounded-2xl bg-brand-surface border border-brand-gold/25 space-y-6 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-gold/15 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <GitBranch size={20} weight="duotone" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-ivory">
+                المزامنة والنشر التلقائي مع مستودع GitHub
+              </h3>
+              <p className="text-[11px] text-brand-ivory/60">
+                ربط لوحة التحكم مباشرة مع المستودع ليتم نشر أي تعديل تقوم به للموقع فوراً
+              </p>
+            </div>
+          </div>
+
+          {formData.lastSyncTime && (
+            <span className="text-[11px] font-mono text-brand-gold bg-brand-gold/10 px-2.5 py-1 rounded-lg">
+              آخر مزامنة: {new Date(formData.lastSyncTime).toLocaleTimeString('ar-LY')}
+            </span>
+          )}
+        </div>
+
+        {syncStatus && (
+          <div
+            className={`p-3.5 rounded-xl text-xs flex items-center gap-2 font-medium ${
+              syncStatus.type === 'success'
+                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
+                : 'bg-rose-500/15 border border-rose-500/30 text-rose-300'
+            }`}
+          >
+            {syncStatus.type === 'success' ? (
+              <CheckCircle size={18} weight="fill" className="text-emerald-400 shrink-0" />
+            ) : (
+              <WarningCircle size={18} weight="fill" className="text-rose-400 shrink-0" />
+            )}
+            <span>{syncStatus.text}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* GitHub Token */}
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="block text-xs font-semibold text-brand-ivory/90">
+              رمز الوصول الشخصي (GitHub Personal Access Token)
+            </label>
+            <input
+              type="password"
+              value={formData.githubToken || ''}
+              onChange={e => {
+                const val = e.target.value;
+                setFormData({ ...formData, githubToken: val });
+                adminStore.updateSettings({ githubToken: val });
+              }}
+              placeholder="GitHub Token..."
+              dir="ltr"
+              className="w-full px-4 py-2.5 bg-black/40 border border-brand-gold/30 rounded-xl text-xs font-mono text-brand-ivory focus:outline-none focus:border-brand-gold transition-all"
+            />
+            <p className="text-[10px] text-brand-ivory/50">
+              الرمز المستخدم لرفع وحفظ البيانات تلقائياً في مستودع GitHub.
+            </p>
+          </div>
+
+          {/* GitHub Repo */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-brand-ivory/90">
+              المستودع (Repository)
+            </label>
+            <input
+              type="text"
+              value={formData.githubRepo || 'almagdly/almagdly.github.io'}
+              onChange={e => {
+                const val = e.target.value;
+                setFormData({ ...formData, githubRepo: val });
+                adminStore.updateSettings({ githubRepo: val });
+              }}
+              dir="ltr"
+              className="w-full px-4 py-2.5 bg-black/40 border border-brand-gold/30 rounded-xl text-xs font-mono text-brand-ivory focus:outline-none focus:border-brand-gold transition-all"
+            />
+          </div>
+
+          {/* GitHub Branch */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-brand-ivory/90">
+              الفرع (Branch)
+            </label>
+            <input
+              type="text"
+              value={formData.githubBranch || 'main'}
+              onChange={e => {
+                const val = e.target.value;
+                setFormData({ ...formData, githubBranch: val });
+                adminStore.updateSettings({ githubBranch: val });
+              }}
+              dir="ltr"
+              className="w-full px-4 py-2.5 bg-black/40 border border-brand-gold/30 rounded-xl text-xs font-mono text-brand-ivory focus:outline-none focus:border-brand-gold transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-brand-gold/15">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={isSyncing}
+              onClick={handleTestGitHub}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-black/40 border border-brand-gold/30 text-brand-champagne hover:bg-brand-gold/15 disabled:opacity-50 transition-all"
+            >
+              <ShieldCheck size={16} />
+              <span>اختبار الاتصال بالمستودع</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={isSyncing}
+              onClick={handlePullGitHub}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-black/40 border border-brand-gold/30 text-brand-champagne hover:bg-brand-gold/15 disabled:opacity-50 transition-all"
+            >
+              <ArrowClockwise size={16} />
+              <span>سحب أحدث بيانات من المستودع</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            disabled={isSyncing}
+            onClick={handlePushGitHub}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 shadow-lg shadow-emerald-900/30 disabled:opacity-50 transition-all"
+          >
+            {isSyncing ? (
+              <>
+                <CircleNotch size={16} className="animate-spin" />
+                <span>جاري النشر...</span>
+              </>
+            ) : (
+              <>
+                <CloudArrowUp size={16} weight="bold" />
+                <span>نشر وحفظ التعديلات في المستودع الآن</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
