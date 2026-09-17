@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAdminDesigns } from '../hooks/useAdminStore';
+import { adminStore } from '../services/adminStore';
 import { useFavorites } from '../context/FavoritesContext';
 import { getWhatsAppUrl, getDesignInquiryMessage } from '../utils/whatsapp';
 import { SimilarDesigns } from '../components/gallery/SimilarDesigns';
@@ -37,7 +38,14 @@ export const DesignDetailPage: React.FC = () => {
 
   const design = designsData.find(d => d.slug === slug);
 
+  React.useEffect(() => {
+    if (design?.id) {
+      adminStore.recordDesignView(design.id);
+    }
+  }, [design?.id]);
+
   if (!design) {
+
     return (
       <div className="pt-32 pb-24 text-center min-h-[70vh] flex flex-col items-center justify-center bg-brand-dark px-4">
         <h2 className="text-xl font-bold text-brand-ivory mb-2">التصميم غير موجود</h2>

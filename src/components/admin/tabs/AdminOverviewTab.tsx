@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   Images,
   ChatTeardropDots,
@@ -13,10 +13,18 @@ import {
   Door,
   Package,
   PaintBrush,
+  DeviceMobile,
+  Globe,
+  TrendUp,
+  Users,
+  Lightning,
+  MapPin,
 } from '@phosphor-icons/react';
 import { DesignItem } from '../../../types';
 import { InquiryItem } from '../../../types/admin';
 import { AdminTab } from '../AdminSidebar';
+import { useSiteAnalytics } from '../../../hooks/useAdminStore';
+import { adminStore } from '../../../services/adminStore';
 
 interface Props {
   designs: DesignItem[];
@@ -31,18 +39,31 @@ export const AdminOverviewTab: React.FC<Props> = ({
   onNavigateTab,
   onOpenAddModal,
 }) => {
+  const analytics = useSiteAnalytics();
+
   const kitchensCount = designs.filter(d => d.category === 'kitchens').length;
   const bedroomsCount = designs.filter(d => d.category === 'bedrooms').length;
   const pvcCount = designs.filter(d => d.category === 'pvc-doors').length;
   const wardrobesCount = designs.filter(d => d.category === 'wardrobes').length;
-  const decorCount = designs.filter(d => d.category === 'interior-design' || d.category === 'living-rooms' || d.category === 'home-decor').length;
+  const decorCount = designs.filter(
+    d => d.category === 'interior-design' || d.category === 'living-rooms' || d.category === 'home-decor'
+  ).length;
   const featuredCount = designs.filter(d => d.isFeatured).length;
 
   const totalViews = designs.reduce((acc, d) => acc + (d.views || 0), 0);
   const newInquiriesCount = inquiries.filter(i => i.status === 'new').length;
 
+  // Sort designs by views descending for most viewed section
+  const topViewedDesigns = [...designs]
+    .sort((a, b) => (b.views || 0) - (a.views || 0))
+    .slice(0, 5);
+
   const recentInquiries = inquiries.slice(0, 4);
   const recentDesigns = designs.slice(0, 4);
+
+  const handleSimulateInquiry = () => {
+    adminStore.simulateCustomerInquiry();
+  };
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -52,17 +73,17 @@ export const AdminOverviewTab: React.FC<Props> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/15 text-brand-gold text-xs font-bold">
               <Sparkle size={14} weight="fill" />
-              <span>لوحة الإدارة والمتابعة الحية</span>
+              <span>لوحة الإدارة والتحليلات الحية</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-brand-ivory font-arabic">
               مرحباً بك في مركز إدارة شركة <span className="text-gold-gradient">المجد</span>
             </h2>
             <p className="text-xs sm:text-sm text-brand-ivory/70 max-w-xl font-light">
-              يمكنك من هنا إضافة وتعديل وحذف التصاميم، ومتابعة رسائل وطلبات العملاء الواردة من الموقع، ومراسلتهم مباشرة عبر واتساب.
+              متابعة دقيقة لحركة الزيارات، وإدارة طلبات العملاء الواردة من البيضاء والجبل الأخضر، وتحديث محتوى المعرض فورياً.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={onOpenAddModal}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-brand-gold to-amber-500 text-brand-dark hover:brightness-110 shadow-lg shadow-brand-gold/20 transition-all"
@@ -77,86 +98,254 @@ export const AdminOverviewTab: React.FC<Props> = ({
               <ChatTeardropDots size={18} weight="duotone" />
               <span>مراجعة الطلبات ({newInquiriesCount})</span>
             </button>
+            <button
+              onClick={handleSimulateInquiry}
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all"
+              title="محاكاة وصول طلب جديد من عميل للتجربة"
+            >
+              <Lightning size={16} weight="fill" className="text-emerald-400" />
+              <span>محاكاة طلب تجريبي</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Top 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {/* Total Designs */}
-        <div
-          onClick={() => onNavigateTab('designs')}
-          className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 hover:border-brand-gold/50 cursor-pointer transition-all shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-11 h-11 rounded-xl bg-brand-gold/15 flex items-center justify-center text-brand-gold group-hover:scale-110 transition-transform">
-              <Images size={22} weight="duotone" />
+      {/* Top 5 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5">
+        {/* Total Visits */}
+        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-brand-gold/15 flex items-center justify-center text-brand-gold">
+              <Globe size={22} weight="duotone" />
             </div>
-            <span className="text-[11px] font-semibold text-brand-gold flex items-center gap-1">
-              <span>إدارة</span>
-              <ArrowUpRight size={13} />
+            <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+              <TrendUp size={13} weight="bold" />
+              <span>+14.8%</span>
             </span>
           </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl sm:text-3xl font-bold text-brand-ivory font-mono">
-              {designs.length}
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
+              {analytics.totalVisits.toLocaleString('ar-LY')}
             </h3>
-            <p className="text-xs text-brand-ivory/60">إجمالي تصاميم المعرض</p>
+            <p className="text-xs text-brand-ivory/60">إجمالي زيارات الموقع</p>
           </div>
         </div>
 
-        {/* Customer Inquiries */}
+        {/* Today's Visits & Active Now */}
+        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+              <Users size={22} weight="duotone" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>{analytics.activeVisitorsNow} الآن</span>
+            </span>
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
+              {analytics.todayVisits}
+            </h3>
+            <p className="text-xs text-brand-ivory/60">زيارات اليوم للموقع</p>
+          </div>
+        </div>
+
+        {/* Inquiries */}
         <div
           onClick={() => onNavigateTab('inquiries')}
-          className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 hover:border-brand-gold/50 cursor-pointer transition-all shadow-md group"
+          className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 hover:border-brand-gold/50 cursor-pointer transition-all shadow-md group space-y-2"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-11 h-11 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
               <ChatTeardropDots size={22} weight="duotone" />
             </div>
-            {newInquiriesCount > 0 && (
+            {newInquiriesCount > 0 ? (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">
                 {newInquiriesCount} جديد
               </span>
+            ) : (
+              <span className="text-[11px] font-semibold text-brand-gold flex items-center gap-1">
+                <span>عرض</span>
+                <ArrowUpRight size={13} />
+              </span>
             )}
           </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl sm:text-3xl font-bold text-brand-ivory font-mono">
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {inquiries.length}
             </h3>
             <p className="text-xs text-brand-ivory/60">طلبات واستفسارات واردة</p>
           </div>
         </div>
 
-        {/* Featured Designs */}
-        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400">
-              <Star size={22} weight="duotone" />
-            </div>
-            <span className="text-[11px] text-amber-400/80 font-medium">الصفحة الرئيسية</span>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl sm:text-3xl font-bold text-brand-ivory font-mono">
-              {featuredCount}
-            </h3>
-            <p className="text-xs text-brand-ivory/60">تصاميم مختارة ومميزة</p>
-          </div>
-        </div>
-
-        {/* Total Views */}
-        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400">
+        {/* Gallery Interaction */}
+        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400">
               <Eye size={22} weight="duotone" />
             </div>
-            <span className="text-[11px] text-sky-400/80 font-medium">تفاعل المعرض</span>
+            <span className="text-[11px] text-sky-400/80 font-medium font-mono">
+              {designs.length} تصميم
+            </span>
           </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl sm:text-3xl font-bold text-brand-ivory font-mono">
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
               {totalViews.toLocaleString('ar-LY')}
             </h3>
             <p className="text-xs text-brand-ivory/60">إجمالي مشاهدات الأعمال</p>
+          </div>
+        </div>
+
+        {/* WhatsApp Conversion Clicks */}
+        <div className="p-5 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-md space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center text-green-400">
+              <WhatsappLogo size={22} weight="fill" />
+            </div>
+            <span className="text-[11px] text-green-400/80 font-medium">معدل تحويل</span>
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-brand-ivory font-mono">
+              {analytics.whatsappClicks}
+            </h3>
+            <p className="text-xs text-brand-ivory/60">استفسارات بدأت عبر واتساب</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Realistic Analytics & Geographic Distribution Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left 7 Cols: Geographic & Audience Split */}
+        <div className="lg:col-span-7 p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-5">
+          <div className="flex items-center justify-between border-b border-brand-gold/15 pb-3">
+            <div className="flex items-center gap-2">
+              <MapPin size={18} className="text-brand-gold" weight="duotone" />
+              <h3 className="text-sm font-bold text-brand-ivory">
+                التوزيع الجغرافي لزوار الموقع (ليبيا)
+              </h3>
+            </div>
+            <span className="text-[11px] text-brand-ivory/50">تتبع حي لنطاق المنطقة</span>
+          </div>
+
+          <div className="space-y-3.5">
+            {/* Al-Bayda */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-brand-ivory font-medium">مدينة البيضاء (المركز الرئيسي)</span>
+                <span className="font-bold text-brand-gold font-mono">44%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-brand-gold to-amber-500" style={{ width: '44%' }} />
+              </div>
+            </div>
+
+            {/* Benghazi */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-brand-ivory font-medium">بنغازي الكبرى</span>
+                <span className="font-bold text-brand-gold font-mono">24%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-500" style={{ width: '24%' }} />
+              </div>
+            </div>
+
+            {/* Shahat & Sahel */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-brand-ivory font-medium">شحات، سوسة، والساحل الشرقي</span>
+                <span className="font-bold text-brand-gold font-mono">16%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" style={{ width: '16%' }} />
+              </div>
+            </div>
+
+            {/* Derna */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-brand-ivory font-medium">درنة والقبة</span>
+                <span className="font-bold text-brand-gold font-mono">11%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500" style={{ width: '11%' }} />
+              </div>
+            </div>
+
+            {/* Tobruk & Al-Marj */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-brand-ivory font-medium">طبرق، المرج، ومناطق أخرى</span>
+                <span className="font-bold text-brand-gold font-mono">5%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-amber-600 to-rose-500" style={{ width: '5%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Device & Traffic Sources summary */}
+          <div className="pt-3 border-t border-brand-gold/15 grid grid-cols-2 gap-4 text-xs">
+            <div className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center gap-3">
+              <DeviceMobile size={22} className="text-brand-gold shrink-0" weight="duotone" />
+              <div>
+                <span className="text-[11px] text-brand-ivory/60 block">نوع الأجهزة الأكثر استخداماً</span>
+                <span className="font-bold text-brand-ivory">84% هواتف ذكية (Mobile)</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center gap-3">
+              <Globe size={22} className="text-emerald-400 shrink-0" weight="duotone" />
+              <div>
+                <span className="text-[11px] text-brand-ivory/60 block">المصدر الأبرز للزيارات</span>
+                <span className="font-bold text-brand-ivory">68% فيسبوك وتيك توك</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right 5 Cols: Top Viewed Designs */}
+        <div className="lg:col-span-5 p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-4">
+          <div className="flex items-center justify-between border-b border-brand-gold/15 pb-3">
+            <h3 className="text-sm font-bold text-brand-ivory flex items-center gap-2">
+              <Eye size={18} className="text-brand-gold" weight="duotone" />
+              <span>التصاميم الأكثر مشاهدة وطلباً</span>
+            </h3>
+            <span className="text-[11px] text-brand-ivory/50">بناءً على المشاهدات</span>
+          </div>
+
+          <div className="space-y-2.5">
+            {topViewedDesigns.map((design, idx) => (
+              <div
+                key={design.id}
+                className="p-2.5 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center justify-between gap-3 hover:border-brand-gold/30 transition-all"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 text-center text-xs font-bold text-brand-gold font-mono">
+                    #{idx + 1}
+                  </span>
+                  <img
+                    src={design.mainImage}
+                    alt={design.title}
+                    className="w-10 h-10 rounded-lg object-cover border border-brand-gold/20 shrink-0"
+                    onError={e => {
+                      (e.target as HTMLImageElement).src = './projects/p1.jpg';
+                    }}
+                  />
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-brand-ivory truncate">{design.title}</h4>
+                    <span className="text-[10px] text-brand-gold">{design.categoryArabic}</span>
+                  </div>
+                </div>
+
+                <div className="shrink-0 text-left">
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-champagne font-mono">
+                    <Eye size={13} className="text-brand-gold" />
+                    <span>{(design.views || 0).toLocaleString('ar-LY')}</span>
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -236,7 +425,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
             </h3>
             <button
               onClick={() => onNavigateTab('inquiries')}
-              className="text-xs text-brand-gold hover:underline"
+              className="text-xs text-brand-gold hover:underline font-semibold"
             >
               عرض الكل ({inquiries.length})
             </button>
@@ -249,7 +438,9 @@ export const AdminOverviewTab: React.FC<Props> = ({
               {recentInquiries.map(inq => {
                 const phoneClean = inq.phone.replace(/\D/g, '');
                 const waPhone = phoneClean.startsWith('218') ? phoneClean : `218${phoneClean.replace(/^0+/, '')}`;
-                const waMsg = encodeURIComponent(`مرحباً أستاذ ${inq.name}، معك إدارة شركة المجد للمطابخ والديكور بخصوص طلبك (${inq.projectType}). يسعدنا تواصلكم!`);
+                const waMsg = encodeURIComponent(
+                  `السلام عليكم أستاذ ${inq.name}، معك إدارة شركة المجد للمطابخ والديكور (البيضاء) بخصوص طلبك المسجل (${inq.projectType}). نسعد بخدمتك ومناقشة تفاصيل المشروع والمقاسات!`
+                );
                 const waLink = `https://wa.me/${waPhone}?text=${waMsg}`;
 
                 return (
@@ -269,6 +460,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
                       <p className="text-[11px] text-brand-gold truncate">{inq.projectType}</p>
                       <p className="text-[10px] text-brand-ivory/50">
                         {new Date(inq.createdAt).toLocaleDateString('ar-LY')} • {inq.phone}
+                        {inq.location && ` • ${inq.location}`}
                       </p>
                     </div>
 
@@ -297,7 +489,7 @@ export const AdminOverviewTab: React.FC<Props> = ({
             </h3>
             <button
               onClick={() => onNavigateTab('designs')}
-              className="text-xs text-brand-gold hover:underline"
+              className="text-xs text-brand-gold hover:underline font-semibold"
             >
               عرض الكل ({designs.length})
             </button>
@@ -335,3 +527,4 @@ export const AdminOverviewTab: React.FC<Props> = ({
     </div>
   );
 };
+

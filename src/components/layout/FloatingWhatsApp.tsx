@@ -1,9 +1,12 @@
 import React from 'react';
 import { WhatsappLogo } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../../utils/whatsapp';
+import { useSiteSettings } from '../../hooks/useAdminStore';
 
 export const FloatingWhatsApp: React.FC = () => {
-  const whatsAppUrl = getWhatsAppUrl('السلام عليكم شركة المجد، أود الاستفسار عن تفصيل وتصميم مطبخ عصري.');
+  const settings = useSiteSettings();
+  const whatsAppUrl = getWhatsAppUrl('السلام عليكم شركة المجد، أود الاستفسار عن تفصيل وتصميم مطبخ عصري أو ديكور داخلي.', settings.whatsapp);
+
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex items-center">

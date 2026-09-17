@@ -1,6 +1,6 @@
 import React from 'react';
 import { DesignItem } from '../../types';
-import { designsData } from '../../data/designsData';
+import { useAdminDesigns } from '../../hooks/useAdminStore';
 import { DesignCard } from './DesignCard';
 import { ArrowLeft } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
@@ -14,8 +14,10 @@ export const SimilarDesigns: React.FC<SimilarDesignsProps> = ({
   currentDesign,
   onQuickView,
 }) => {
+  const designsData = useAdminDesigns();
   const similar = designsData
     .filter(d => d.id !== currentDesign.id)
+
     .map(d => {
       let score = 0;
       if (d.category === currentDesign.category) score += 5;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminStore } from '../services/adminStore';
 import { DesignItem, BeforeAfterItem } from '../types';
-import { InquiryItem, SiteSettings } from '../types/admin';
+import { InquiryItem, SiteSettings, SiteAnalytics } from '../types/admin';
 
 export function useBeforeAfter(): BeforeAfterItem[] {
   const [items, setItems] = useState<BeforeAfterItem[]>(() => adminStore.getBeforeAfter());
@@ -55,6 +55,19 @@ export function useSiteSettings(): SiteSettings {
   return settings;
 }
 
+export function useSiteAnalytics(): SiteAnalytics {
+  const [analytics, setAnalytics] = useState<SiteAnalytics>(() => adminStore.getAnalytics());
+
+  useEffect(() => {
+    const unsubscribe = adminStore.subscribe(() => {
+      setAnalytics({ ...adminStore.getAnalytics() });
+    });
+    return unsubscribe;
+  }, []);
+
+  return analytics;
+}
+
 export function useIsAdmin(): boolean {
   const [isAuth, setIsAuth] = useState<boolean>(() => adminStore.isAuthenticated());
 
@@ -67,3 +80,4 @@ export function useIsAdmin(): boolean {
 
   return isAuth;
 }
+

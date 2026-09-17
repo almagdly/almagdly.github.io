@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DesignItem } from '../types';
-import { designsData } from '../data/designsData';
+import { adminStore } from '../services/adminStore';
 
 interface FavoritesContextType {
   favoriteIds: string[];
@@ -36,8 +36,9 @@ function getSafeInitialFavorites(): string[] {
     
     const parsed = JSON.parse(saved);
     if (Array.isArray(parsed)) {
+      const allDesigns = adminStore.getDesigns();
       const valid = parsed.filter((id): id is string => 
-        typeof id === 'string' && designsData.some(d => d.id === id)
+        typeof id === 'string' && allDesigns.some(d => d.id === id)
       );
       return valid.length > 0 ? valid : DEFAULT_FAVORITES;
     }
@@ -46,6 +47,7 @@ function getSafeInitialFavorites(): string[] {
   }
   return DEFAULT_FAVORITES;
 }
+
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
@@ -88,7 +90,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addToFavorites = (id: string) => {
     if (Array.isArray(favoriteIds) && !favoriteIds.includes(id)) {
       setFavoriteIds(prev => [...prev, id]);
-      const design = designsData.find(d => d.id === id);
+      const design = adminStore.getDesigns().find(d => d.id === id);
       showToast(`تمت إضافة "${design?.title || 'التصميم'}" إلى المفضلة`);
     }
   };
@@ -96,7 +98,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const removeFromFavorites = (id: string) => {
     setFavoriteIds(prev => (Array.isArray(prev) ? prev.filter(item => item !== id) : []));
     setSelectedIds(prev => (Array.isArray(prev) ? prev.filter(item => item !== id) : []));
-    const design = designsData.find(d => d.id === id);
+    const design = adminStore.getDesigns().find(d => d.id === id);
     showToast(`تمت إزالة "${design?.title || 'التصميم'}" من المفضلة`);
   };
 
@@ -134,7 +136,8 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const isAllSelected = safeFavoriteIds.length > 0 && safeSelectedIds.length === safeFavoriteIds.length;
 
-  const favoriteItems = designsData.filter(d => safeFavoriteIds.includes(d.id));
+  const favoriteItems = adminStore.getDesigns().filter(d => safeFavoriteIds.includes(d.id));
+
 
   return (
     <FavoritesContext.Provider
@@ -165,8 +168,9 @@ export const useFavorites = () => {
   if (!context) {
     return {
       favoriteIds: DEFAULT_FAVORITES,
-      favoriteItems: designsData.filter(d => DEFAULT_FAVORITES.includes(d.id)),
+      favoriteItems: adminStore.getDesigns().filter(d => DEFAULT_FAVORITES.includes(d.id)),
       isFavorite: () => false,
+
       toggleFavorite: () => {},
       addToFavorites: () => {},
       removeFromFavorites: () => {},

@@ -9,11 +9,13 @@ import { CompanyIntro } from '../components/home/CompanyIntro';
 import { ConsultationCta } from '../components/home/ConsultationCta';
 import { FullscreenViewer } from '../components/viewer/FullscreenViewer';
 import { DesignItem } from '../types';
-import { designsData } from '../data/designsData';
+import { useAdminDesigns } from '../hooks/useAdminStore';
 
 export const HomePage: React.FC = () => {
+  const designsData = useAdminDesigns();
   const [selectedDesign, setSelectedDesign] = useState<DesignItem | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+
 
   const handleQuickView = (design: DesignItem) => {
     setSelectedDesign(design);

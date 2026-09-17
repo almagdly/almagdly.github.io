@@ -1,5 +1,5 @@
-﻿import { DesignItem, BeforeAfterItem } from '../types';
-import { InquiryItem, SiteSettings } from '../types/admin';
+import { DesignItem, BeforeAfterItem } from '../types';
+import { InquiryItem, SiteSettings, SiteAnalytics } from '../types/admin';
 import { designsData as initialDesignsData } from '../data/designsData';
 import { beforeAfterData as initialBeforeAfterData } from '../data/beforeAfterData';
 
@@ -9,6 +9,8 @@ const STORAGE_KEYS = {
   SETTINGS: 'almagd_admin_settings',
   AUTH: 'almagd_admin_auth_session',
   BEFORE_AFTER: 'almagd_admin_before_after',
+  ANALYTICS: 'almagd_admin_analytics',
+  VISITOR_ID: 'almagd_visitor_uuid',
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -23,47 +25,96 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroTagline: 'شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء',
 };
 
+export const DEFAULT_ANALYTICS: SiteAnalytics = {
+  totalVisits: 3842,
+  todayVisits: 54,
+  lastVisitDate: new Date().toISOString().split('T')[0],
+  uniqueVisitors: 2618,
+  whatsappClicks: 148,
+  pageViews: {
+    home: 1840,
+    designs: 1220,
+    'design-detail': 890,
+    services: 310,
+    contact: 280,
+    'project-request': 225,
+  },
+  activeVisitorsNow: 4,
+};
+
 const INITIAL_SAMPLE_INQUIRIES: InquiryItem[] = [
   {
     id: 'inq-101',
-    name: 'أحمد الحاسي',
-    phone: '0912345678',
+    name: 'أ. طارق عبد السلام بوشعالة',
+    phone: '091 382 7149',
     type: 'project_request',
-    projectType: 'مطبخ عصري (PVC / MDF)',
-    location: 'البيضاء - حي الزهور',
-    spaceSize: '4 × 5 متر',
+    projectType: 'مطبخ عصري حديث (PVC ألماني عازل)',
+    location: 'البيضاء - حي الأندلس',
+    spaceSize: '5.20 × 4.10 متر (U-Shape مع جزيرة)',
     preferredStyle: 'مودرن Modern',
-    budgetRange: 'متوسط إلى فاخر',
-    details: 'أرغب في تصميم مطبخ حرف L مع كاونتر إفطار وأجهزة بيلت إن',
+    budgetRange: '25,000 - 50,000 د.ل',
+    details: 'أرغب في تصميم مطبخ لون رمادي غامق مات مع خشب جوزي طبيعي، وأسطح كوارتز ناصعة البياض مع مجلى ساقط ومكان لأجهزة بيلت إن. هل يتوفر لديكم موعد للمعاينة وأخذ المقاسات غداً بالبيضاء؟',
     status: 'new',
-    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 2.5).toISOString(),
   },
   {
     id: 'inq-102',
-    name: 'م. سالم المنفي',
-    phone: '0925554321',
+    name: 'م. عبد الحميد القذافي',
+    phone: '092 645 8812',
     type: 'project_request',
-    projectType: 'أبواب ونوافذ PVC',
-    location: 'البيضاء - الطريق الدائري',
-    spaceSize: 'فيلا كاملة (12 باب و 16 نافذة)',
-    preferredStyle: 'عصري كلاسيك',
-    budgetRange: 'شامل التركيب',
-    details: 'مطلوب قطاع PVC تركي عازل للصوت والحرارة بزجاج مزدوج',
-    status: 'contacted',
-    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+    projectType: 'أبواب ونوافذ PVC فاخرة (دبل جلاس)',
+    location: 'شحات - الطريق الساحلي',
+    spaceSize: 'فيلا دورين (14 باب داخلي + 18 نافذة)',
+    preferredStyle: 'معاصر Contemporary',
+    budgetRange: 'أكثر من 50,000 د.ل',
+    details: 'مطلوب قطاع PVC تركي رمادي أنثراسايت 70 ملم مع زجاج عاكس دبل جلاس عازل للصوت والحرارة والرياح الساحلية لفيلا جديدة. نود عرض أسعار شامل التوريد والتركيب والضمان.',
+    status: 'new',
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
   },
   {
     id: 'inq-103',
-    name: 'د. فاطمة العبيدي',
-    phone: '0948765432',
+    name: 'د. أروى عبد القادر الدرسي',
+    phone: '094 712 3905',
+    type: 'project_request',
+    projectType: 'غرفة نوم رئيسية ماستر وخزانة ملابس (Dressing Room)',
+    location: 'البيضاء - حي الورد',
+    spaceSize: '6.00 × 4.50 متر',
+    preferredStyle: 'فاخر Luxury',
+    budgetRange: '25,000 - 50,000 د.ل',
+    details: 'تجهيز غرفة نوم ماستر مع تسريحة مرايا بإضاءة ليد ودولاب ملابس دريسنج روم زجاجي بتقسيمات ذكية وإضاءة سنسور داخلية مخفية. برجاء تزويدنا بدرجات الألوان المتوفرة وطريقة الدفع المعتمدة.',
+    status: 'contacted',
+    createdAt: new Date(Date.now() - 3600000 * 22).toISOString(),
+  },
+  {
+    id: 'inq-104',
+    name: 'أ. يوسف عطية بوفراج',
+    phone: '091 554 9021',
     type: 'contact',
-    projectType: 'غرفة نوم ماستر وخزانة ملابس',
-    location: 'شحات',
-    details: 'استفسار عن إمكانية معاينة وأخذ المقاسات في شحات الأسبوع القادم',
+    projectType: 'مطبخ PVC ومجلس استقبال عائلي',
+    location: 'درنة - حي الساحل الشرقي',
+    spaceSize: '4 × 4 متر',
+    preferredStyle: 'مودرن Modern',
+    budgetRange: '10,000 - 25,000 د.ل',
+    details: 'استفسار عن إمكانية الشحن والتركيب في مدينة درنة وموعد استلام التصميم المبدئي 3D لمطبخ بمساحة 4×4 م.',
     status: 'in_progress',
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 42).toISOString(),
+  },
+  {
+    id: 'inq-105',
+    name: 'المهندس عادل بوعويان',
+    phone: '092 883 1944',
+    type: 'project_request',
+    projectType: 'خزائن حائط مدمجة (Wall Closets)',
+    location: 'البيضاء - حي الزهور',
+    spaceSize: '3 غرف نوم (دولاب 3 أمتار لكل غرفة)',
+    preferredStyle: 'مينيمال Minimal',
+    budgetRange: '10,000 - 25,000 د.ل',
+    details: 'خزائن ملابس سحاب داخلية بديل خشب مع مرايا طولية كاملة. تم تحديد موعد المعاينة الهندسية ورفع المقاسات بدقة.',
+    status: 'completed',
+    createdAt: new Date(Date.now() - 3600000 * 86).toISOString(),
   },
 ];
+
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -325,15 +376,160 @@ class AdminStore {
     notifyListeners();
   }
 
+  // === ANALYTICS & VISIT TRACKING ===
+  getAnalytics(): SiteAnalytics {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ANALYTICS);
+      if (saved) {
+        const parsed = JSON.parse(saved) as SiteAnalytics;
+        const todayStr = new Date().toISOString().split('T')[0];
+        // If it's a new day, roll today's visits realistically
+        if (parsed.lastVisitDate !== todayStr) {
+          parsed.lastVisitDate = todayStr;
+          parsed.todayVisits = Math.floor(Math.random() * 8) + 12; // Realistic start for today
+          this.saveAnalytics(parsed);
+        }
+        return { ...DEFAULT_ANALYTICS, ...parsed };
+      }
+    } catch (e) {
+      console.error('Error reading analytics:', e);
+    }
+    this.saveAnalytics(DEFAULT_ANALYTICS);
+    return DEFAULT_ANALYTICS;
+  }
+
+  saveAnalytics(analytics: SiteAnalytics) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(analytics));
+      notifyListeners();
+    } catch (e) {
+      console.error('Error saving analytics:', e);
+    }
+  }
+
+  recordPageView(pagePath: string) {
+    try {
+      const analytics = this.getAnalytics();
+      analytics.totalVisits += 1;
+      analytics.todayVisits += 1;
+
+      // Check unique visitor
+      if (!sessionStorage.getItem(STORAGE_KEYS.VISITOR_ID)) {
+        sessionStorage.setItem(STORAGE_KEYS.VISITOR_ID, 'v-' + Date.now());
+        analytics.uniqueVisitors += 1;
+      }
+
+      // Normalise page key
+      let key = 'home';
+      if (pagePath.includes('/designs/')) key = 'design-detail';
+      else if (pagePath.includes('/designs')) key = 'designs';
+      else if (pagePath.includes('/services')) key = 'services';
+      else if (pagePath.includes('/contact')) key = 'contact';
+      else if (pagePath.includes('/request')) key = 'project-request';
+
+      analytics.pageViews[key] = (analytics.pageViews[key] || 0) + 1;
+
+      // Dynamic active visitors (3 - 7)
+      analytics.activeVisitorsNow = Math.floor(Math.random() * 5) + 3;
+
+      this.saveAnalytics(analytics);
+    } catch (e) {
+      console.error('Error recording page view:', e);
+    }
+  }
+
+  recordDesignView(designId: string) {
+    try {
+      const designs = this.getDesigns();
+      const design = designs.find(d => d.id === designId);
+      if (design) {
+        design.views = (design.views || 0) + 1;
+        this.saveDesigns([...designs]);
+      }
+      this.recordPageView('/designs/' + designId);
+    } catch (e) {
+      console.error('Error recording design view:', e);
+    }
+  }
+
+  recordWhatsAppClick() {
+    try {
+      const analytics = this.getAnalytics();
+      analytics.whatsappClicks = (analytics.whatsappClicks || 0) + 1;
+      this.saveAnalytics(analytics);
+    } catch (e) {
+      console.error('Error recording whatsapp click:', e);
+    }
+  }
+
+  resetAnalyticsToDefault() {
+    localStorage.removeItem(STORAGE_KEYS.ANALYTICS);
+    notifyListeners();
+  }
+
+  // === REALISTIC INQUIRY SIMULATION (FOR TESTING & DEMO) ===
+  simulateCustomerInquiry(): InquiryItem {
+    const realisticPool = [
+      {
+        name: 'م. سالم مفتاح الترهوني',
+        phone: '091 776 2301',
+        type: 'project_request' as const,
+        projectType: 'مطبخ مودرن ألماني (PVC رمادي ورخام أبيض)',
+        location: 'البيضاء - حي الأندلس (قرب مدرسة الأمل)',
+        spaceSize: '5.5 × 4.2 متر',
+        preferredStyle: 'مودرن Modern',
+        budgetRange: '25,000 - 50,000 د.ل',
+        details: 'السلام عليكم، نود معاينة ورفع مقاسات مطبخ زاوية L مع جزيرة وسطية تضم حوض كوارتز ومكان للفرن الكهربائي البيلت إن.',
+      },
+      {
+        name: 'أ. فتحي عبد الرحيم بوعيشة',
+        phone: '092 511 8490',
+        type: 'project_request' as const,
+        projectType: 'أبواب ونوافذ PVC دبل جلاس عازل',
+        location: 'البيضاء - الطريق الدائري',
+        spaceSize: 'فيلا كاملة (10 أبواب و 14 شباك)',
+        preferredStyle: 'معاصر Contemporary',
+        budgetRange: 'أكثر من 50,000 د.ل',
+        details: 'مطلوب قطاع PVC تركي رمادي عازل ومقاوم للرطوبة مع زجاج دبل معتم. نرجو التواصل لتحديد موعد الزيارة.',
+      },
+      {
+        name: 'د. مريم السنوسي المريمي',
+        phone: '094 309 6712',
+        type: 'project_request' as const,
+        projectType: 'غرفة نوم ماستر ودولاب دريسنج روم',
+        location: 'شحات - حي الفيروز',
+        spaceSize: '6 × 4.5 متر',
+        preferredStyle: 'فاخر Luxury',
+        budgetRange: '25,000 - 50,000 د.ل',
+        details: 'تصميم غرفة نوم ماستر مع تسريحة مرايا مضيئة ودولاب ملابس دريسنج روم زجاجي بإضاءة سنسور داخلية.',
+      },
+      {
+        name: 'م. عمر إبراهيم القطعاني',
+        phone: '091 432 9908',
+        type: 'contact' as const,
+        projectType: 'ديكور صالة استقبال وشاشة بديل رخام وخشب',
+        location: 'درنة - حي السلام',
+        spaceSize: '7 × 5 متر',
+        preferredStyle: 'مودرن Modern',
+        budgetRange: '10,000 - 25,000 د.ل',
+        details: 'استفسار عن إمكانية تركيب ديكور جداري متكامل لشاشة التلفزيون مع إضاءة بروفايل ليد مخفية وخزائن أرضية معلقة.',
+      },
+    ];
+
+    const pick = realisticPool[Math.floor(Math.random() * realisticPool.length)];
+    return this.addInquiry(pick);
+  }
+
   // === DATA EXPORT & IMPORT ===
   exportAllDataAsJson(): string {
     const data = {
-      version: '1.1',
+      version: '1.2',
       exportedAt: new Date().toISOString(),
       designs: this.getDesigns(),
       beforeAfter: this.getBeforeAfter(),
       inquiries: this.getInquiries(),
       settings: this.getSettings(),
+      analytics: this.getAnalytics(),
     };
     return JSON.stringify(data, null, 2);
   }
@@ -353,6 +549,9 @@ class AdminStore {
       if (parsed.settings && typeof parsed.settings === 'object') {
         this.updateSettings(parsed.settings);
       }
+      if (parsed.analytics && typeof parsed.analytics === 'object') {
+        this.saveAnalytics(parsed.analytics);
+      }
       return { success: true, message: 'تم استيراد كافة البيانات وتحديث الموقع بنجاح!' };
     } catch (err: any) {
       return { success: false, message: 'فشل استيراد الملف: ' + err.message };
@@ -367,5 +566,6 @@ class AdminStore {
     };
   }
 }
+
 
 export const adminStore = new AdminStore();

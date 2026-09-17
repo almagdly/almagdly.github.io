@@ -1,12 +1,21 @@
 import { DesignItem } from '../types';
+import { adminStore } from '../services/adminStore';
 
 export const OFFICIAL_WHATSAPP_NUMBER = '218945919679'; // Libyan international format without +
 
-export const getWhatsAppUrl = (message: string, phone: string = OFFICIAL_WHATSAPP_NUMBER): string => {
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
+export const getWhatsAppUrl = (message: string, phone?: string): string => {
+  const targetPhone = phone || adminStore.getSettings().whatsapp || OFFICIAL_WHATSAPP_NUMBER;
+  const cleanPhone = targetPhone.replace(/[^0-9]/g, '');
   const encodedMessage = encodeURIComponent(message.trim());
+  
+  // Track conversion click
+  try {
+    adminStore.recordWhatsAppClick();
+  } catch {}
+
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 };
+
 
 export const getDesignInquiryMessage = (design: DesignItem): string => {
   const currentUrl = typeof window !== 'undefined'

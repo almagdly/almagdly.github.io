@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { designsData } from '../../data/designsData';
+import { useAdminDesigns } from '../../hooks/useAdminStore';
 import { CategoryType, StyleType, ColorType, SpaceType, DesignItem } from '../../types';
 import { 
   ArrowLeft, 
@@ -18,7 +18,9 @@ import {
 } from '@phosphor-icons/react';
 
 export const DiscoveryWizard: React.FC = () => {
+  const designsData = useAdminDesigns();
   const [currentStep, setCurrentStep] = useState(1);
+
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | ''>('kitchens');
   const [selectedStyle, setSelectedStyle] = useState<StyleType | ''>('luxury');
   const [selectedColor, setSelectedColor] = useState<ColorType | ''>('beige');

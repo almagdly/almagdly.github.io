@@ -1,5 +1,5 @@
 import React from 'react';
-import { designsData } from '../../data/designsData';
+import { useAdminDesigns } from '../../hooks/useAdminStore';
 import { DesignCard } from '../gallery/DesignCard';
 import { DesignItem } from '../../types';
 import { ArrowLeft } from '@phosphor-icons/react';
@@ -10,7 +10,12 @@ interface MostViewedProps {
 }
 
 export const MostViewed: React.FC<MostViewedProps> = ({ onQuickView }) => {
-  const mostViewed = designsData.filter(d => d.isMostViewed).slice(0, 4);
+  const designsData = useAdminDesigns();
+  // Sort by views descending or isMostViewed
+  const mostViewed = [...designsData]
+    .sort((a, b) => (b.views || 0) - (a.views || 0))
+    .slice(0, 4);
+
 
   return (
     <section className="py-20 lg:py-28 bg-brand-surface/20 border-t border-brand-gold/15 relative">

@@ -2,15 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { WhatsappLogo, Phone, MapPin, ArrowUp, LockKey } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../../utils/whatsapp';
+import { useSiteSettings } from '../../hooks/useAdminStore';
 import logoImg from '../../assets/logo.png';
 
 export const Footer: React.FC = () => {
+  const settings = useSiteSettings();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const facebookUrl = 'https://www.facebook.com/p/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%85%D8%AC%D8%AF-%D9%84%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE-%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AB%D8%A9-%D9%88-P-V-C-100041790767867/';
-  const tiktokUrl = 'https://tiktok.com/@almajdone?_r=1&_t=ZS-99ataXUqlyk';
+  const facebookUrl = settings.facebookUrl;
+  const tiktokUrl = settings.tiktokUrl;
+
 
   return (
     <footer className="bg-brand-dark border-t border-brand-gold/20 pt-16 pb-10 text-brand-ivory relative overflow-hidden">
@@ -147,16 +150,17 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm text-brand-ivory/70">
               <li className="flex items-start gap-2.5">
                 <MapPin size={16} weight="duotone" className="text-brand-gold shrink-0 mt-0.5" />
-                <span>ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)</span>
+                <span>{settings.address || 'ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)'}</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <Phone size={16} weight="duotone" className="text-brand-gold shrink-0 mt-0.5" />
                 <div className="space-y-0.5 text-xs text-brand-ivory/90 font-mono" dir="ltr">
-                  <div>094 5919679</div>
+                  <div>{settings.phone}</div>
                   <div>092 3741578</div>
                   <div>091 3769091</div>
                 </div>
               </li>
+
             </ul>
 
             {/* Social Links */}

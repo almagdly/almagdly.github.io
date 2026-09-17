@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MagnifyingGlass, X, ArrowLeft, Sparkle } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
-import { designsData } from '../../data/designsData';
+import { useAdminDesigns } from '../../hooks/useAdminStore';
 import { DesignItem } from '../../types';
 
 interface SearchModalProps {
@@ -10,6 +10,7 @@ interface SearchModalProps {
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
+  const designsData = useAdminDesigns();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<DesignItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,6 +33,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
     }
 
     const filtered = designsData.filter(d => {
+
       return (
         d.title.toLowerCase().includes(trimmed) ||
         (d.titleEn && d.titleEn.toLowerCase().includes(trimmed)) ||

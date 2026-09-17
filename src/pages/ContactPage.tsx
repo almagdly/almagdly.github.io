@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { MapPin, Phone, Clock, WhatsappLogo, PaperPlaneTilt, CheckCircle } from '@phosphor-icons/react';
 import { getWhatsAppUrl } from '../utils/whatsapp';
 import { adminStore } from '../services/adminStore';
+import { useSiteSettings } from '../hooks/useAdminStore';
 
 export const ContactPage: React.FC = () => {
+  const settings = useSiteSettings();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
 
-  const facebookUrl = 'https://www.facebook.com/p/%D8%B4%D8%B1%D9%83%D8%A9-%D8%A7%D9%84%D9%85%D8%AC%D8%AF-%D9%84%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE-%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AB%D8%A9-%D9%88-P-V-C-100041790767867/';
-  const tiktokUrl = 'https://tiktok.com/@almajdone?_r=1&_t=ZS-99ataXUqlyk';
+  const facebookUrl = settings.facebookUrl;
+  const tiktokUrl = settings.tiktokUrl;
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +56,7 @@ export const ContactPage: React.FC = () => {
               </div>
               <h3 className="text-sm font-bold text-brand-ivory">المعرض والإدارة</h3>
               <p className="text-xs text-brand-ivory/80 leading-relaxed font-medium">
-                ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)
+                {settings.address}
               </p>
             </div>
 
@@ -65,7 +68,7 @@ export const ContactPage: React.FC = () => {
               <h3 className="text-sm font-bold text-brand-ivory">أرقام التواصل والاتصال</h3>
               <div className="space-y-1 text-xs text-brand-ivory/90 font-mono" dir="ltr">
                 <p className="flex items-center justify-end gap-2 font-bold text-brand-champagne">
-                  <span>094 5919679</span>
+                  <span>{settings.phone}</span>
                 </p>
                 <p className="flex items-center justify-end gap-2">
                   <span>092 3741578</span>
@@ -120,11 +123,11 @@ export const ContactPage: React.FC = () => {
                 <Clock size={20} weight="duotone" />
               </div>
               <h3 className="text-sm font-bold text-brand-ivory">ساعات العمل الرسمية</h3>
-              <ul className="space-y-1 text-xs text-brand-ivory/70 font-light">
-                <li>السبت - الخميس: 9:00 ص - 9:00 م</li>
-                <li>الجمعة: عطلة أسبوعية / استقبال رسائل الواتساب</li>
-              </ul>
+              <p className="text-xs text-brand-ivory/80 font-medium">
+                {settings.workingHours}
+              </p>
             </div>
+
 
           </div>
 

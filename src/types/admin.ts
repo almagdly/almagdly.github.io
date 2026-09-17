@@ -24,3 +24,12 @@ export interface SiteSettings {
   heroImage?: string;
   heroTagline?: string;
 }
+export interface SiteAnalytics {
+  totalVisits: number;
+  todayVisits: number;
+  lastVisitDate: string;
+  uniqueVisitors: number;
+  whatsappClicks: number;
+  pageViews: Record<string, number>;
+  activeVisitorsNow: number;
+}
