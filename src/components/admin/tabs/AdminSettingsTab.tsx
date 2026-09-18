@@ -315,11 +315,40 @@ export const AdminSettingsTab: React.FC<Props> = ({ settings }) => {
             </div>
           </div>
 
-          {formData.lastSyncTime && (
-            <span className="text-[11px] font-mono text-brand-gold bg-brand-gold/10 px-2.5 py-1 rounded-lg">
-              آخر مزامنة: {new Date(formData.lastSyncTime).toLocaleTimeString('ar-LY')}
-            </span>
-          )}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {formData.lastSyncTime && (
+              <span className="text-[11px] font-mono text-brand-gold bg-brand-gold/10 px-2.5 py-1 rounded-lg">
+                آخر مزامنة: {new Date(formData.lastSyncTime).toLocaleTimeString('ar-LY')}
+              </span>
+            )}
+
+            {/* Auto-Sync On/Off Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                const val = !formData.autoSyncToGithub;
+                setFormData({ ...formData, autoSyncToGithub: val });
+                adminStore.updateSettings({ autoSyncToGithub: val });
+              }}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${
+                formData.autoSyncToGithub
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-black/40 border-brand-gold/30 text-brand-ivory/50'
+              }`}
+              title="عند التفعيل، يتم نشر أي تعديل في لوحة التحكم تلقائياً إلى GitHub بعد 3 ثوانٍ من آخر تغيير"
+            >
+              <span
+                className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors shrink-0 ${
+                  formData.autoSyncToGithub
+                    ? 'bg-emerald-500 justify-end'
+                    : 'bg-brand-ivory/25 justify-start'
+                }`}
+              >
+                <span className="w-4 h-4 rounded-full bg-white shadow" />
+              </span>
+              <span>{formData.autoSyncToGithub ? 'النشر التلقائي مُفعّل' : 'النشر التلقائي مُعطّل'}</span>
+            </button>
+          </div>
         </div>
 
         {syncStatus && (

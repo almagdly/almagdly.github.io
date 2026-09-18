@@ -89,6 +89,32 @@ function notifyListeners() {
 }
 
 class AdminStore {
+  private syncTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Debounced auto-publish: pushes admin content edits to GitHub
+   * (docs/site-data.json + site-data.json) so the live site updates
+   * automatically without manual publishing.
+   */
+  private scheduleRemoteSync(delay = 3000) {
+    try {
+      const s = this.getSettings();
+      if (!s.autoSyncToGithub) return;
+      if (!(s.githubToken || '').trim()) return;
+      if (this.syncTimer) clearTimeout(this.syncTimer);
+      this.syncTimer = setTimeout(() => {
+        this.syncTimer = null;
+        import('./githubSync')
+          .then(({ githubSync }) =>
+            githubSync.publishToGitHub({
+              commitMessage: `chore: auto-sync admin edits [${new Date().toLocaleString('ar-LY')}]`,
+            })
+          )
+          .catch(() => {});
+      }, delay);
+    } catch {}
+  }
+
   // === DESIGNS ===
   getDesigns(): DesignItem[] {
     try {
@@ -109,6 +135,7 @@ class AdminStore {
     try {
       localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(designs));
       notifyListeners();
+      this.scheduleRemoteSync();
     } catch (e) {
       console.error('Error saving designs to storage:', e);
     }
@@ -233,6 +260,7 @@ class AdminStore {
     try {
       localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(items));
       notifyListeners();
+      this.scheduleRemoteSync();
     } catch (e) {
       console.error('Error saving before/after:', e);
     }
@@ -335,7 +363,7 @@ class AdminStore {
         return {
           ...DEFAULT_SETTINGS,
           ...parsed,
-          githubToken: parsed.githubToken || getInitialGithubToken(),
+          githubToken: parsed.githubToken || getInitialGithubToken() || DEFAULT_SETTINGS.githubToken || '',
         };
       }
     } catch (e) {
@@ -343,7 +371,7 @@ class AdminStore {
     }
     return {
       ...DEFAULT_SETTINGS,
-      githubToken: getInitialGithubToken(),
+      githubToken: getInitialGithubToken() || DEFAULT_SETTINGS.githubToken || '',
     };
   }
 
@@ -357,6 +385,10 @@ class AdminStore {
     }
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
     notifyListeners();
+    const changedKeys = Object.keys(updates);
+    if (!(changedKeys.length === 1 && changedKeys[0] === 'lastSyncTime')) {
+      this.scheduleRemoteSync();
+    }
   }
 
   verifyPin(pin: string): boolean {
@@ -562,7 +594,7 @@ class AdminStore {
       const current = this.getSettings();
       const merged = {
         ...data.settings,
-        githubToken: current.githubToken || getInitialGithubToken(),
+        githubToken: current.githubToken || getInitialGithubToken() || DEFAULT_SETTINGS.githubToken || '',
       };
       try {
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(merged));
