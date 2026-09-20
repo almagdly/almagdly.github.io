@@ -371,9 +371,16 @@ export const AdminSettingsTab: React.FC<Props> = ({ settings }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* GitHub Token */}
           <div className="sm:col-span-2 space-y-1.5">
-            <label className="block text-xs font-semibold text-brand-ivory/90">
-              رمز الوصول الشخصي (GitHub Personal Access Token)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-brand-ivory/90">
+                رمز الوصول الشخصي (GitHub Personal Access Token)
+              </label>
+              {formData.githubToken && (
+                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-sans font-bold">
+                  ✓ متصل ومضبوط تلقائياً
+                </span>
+              )}
+            </div>
             <input
               type="password"
               value={formData.githubToken || ''}
@@ -387,7 +394,7 @@ export const AdminSettingsTab: React.FC<Props> = ({ settings }) => {
               className="w-full px-4 py-2.5 bg-black/40 border border-brand-gold/30 rounded-xl text-xs font-mono text-brand-ivory focus:outline-none focus:border-brand-gold transition-all"
             />
             <p className="text-[10px] text-brand-ivory/50">
-              الرمز المستخدم لرفع وحفظ البيانات تلقائياً في مستودع GitHub.
+              الرمز المستخدم لرفع وحفظ البيانات تلقائياً في مستودع GitHub (مؤمّن ومحفوظ بجهازك).
             </p>
           </div>
 

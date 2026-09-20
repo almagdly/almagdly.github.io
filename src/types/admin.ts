@@ -42,4 +42,9 @@ export interface SiteAnalytics {
     desktop: number;
     tablet: number;
   };
+  activeVisitors?: number;
+  githubViewsCount?: number;
+  githubUniquesCount?: number;
+  githubViewsHistory?: Array<{ timestamp: string; count: number; uniques: number }>;
+  lastTrafficFetch?: string;
 }

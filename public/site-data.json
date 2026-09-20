@@ -12,12 +12,12 @@
     "heroImage": "./projects/p1.jpg",
     "heroTagline": "شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء",
     "homepageDesignIds": [
-      "p1",
-      "p2",
-      "p3",
-      "p7",
-      "p10",
-      "p11"
+      "mg-k-01",
+      "mg-k-02",
+      "mg-k-03",
+      "mg-k-04",
+      "mg-b-01",
+      "mg-b-02"
     ],
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",

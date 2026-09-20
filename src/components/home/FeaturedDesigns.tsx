@@ -5,6 +5,8 @@ import { DesignCard } from '../gallery/DesignCard';
 import { DesignItem } from '../../types';
 import { ArrowLeft, Sparkle } from '@phosphor-icons/react';
 
+import { adminStore } from '../../services/adminStore';
+
 interface FeaturedDesignsProps {
   onQuickView: (design: DesignItem) => void;
 }
@@ -13,17 +15,15 @@ export const FeaturedDesigns: React.FC<FeaturedDesignsProps> = ({ onQuickView })
   const designsData = useAdminDesigns();
   const settings = useSiteSettings();
 
-  // Curate designs according to admin settings
-  let featured: DesignItem[] = [];
-  if (settings.homepageDesignIds && settings.homepageDesignIds.length > 0) {
-    featured = settings.homepageDesignIds
-      .map(id => designsData.find(d => d.id === id))
-      .filter((d): d is DesignItem => Boolean(d));
-  } else {
+  // Curate designs according to admin store
+  const homepageIds = adminStore.getHomepageDesignIds();
+  let featured = homepageIds
+    .map(id => designsData.find(d => d.id === id))
+    .filter((d): d is DesignItem => Boolean(d));
+
+  if (featured.length === 0) {
     featured = designsData.filter(d => d.isFeatured);
   }
-
-  // If still empty (e.g. all deleted/unselected), fallback to top 6 designs
   if (featured.length === 0 && designsData.length > 0) {
     featured = designsData.slice(0, 6);
   }

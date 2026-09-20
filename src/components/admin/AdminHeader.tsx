@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SignOut, ArrowSquareOut, List, Bell, ShieldCheck, CloudArrowUp, CircleNotch, CheckCircle } from '@phosphor-icons/react';
 import { adminStore } from '../../services/adminStore';
 import { githubSync } from '../../services/githubSync';
@@ -17,6 +17,20 @@ export const AdminHeader: React.FC<Props> = ({
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishMessage, setPublishMessage] = useState<string | null>(null);
   const [publishSuccess, setPublishSuccess] = useState(false);
+
+  useEffect(() => {
+    const unsub = githubSync.subscribeSyncStatus(status => {
+      setIsPublishing(status.isSyncing);
+      if (status.message) {
+        setPublishMessage(status.message);
+        setPublishSuccess(Boolean(status.success));
+        if (status.success) {
+          setTimeout(() => setPublishMessage(null), 5000);
+        }
+      }
+    });
+    return unsub;
+  }, []);
 
   const handleLogout = () => {
     if (window.confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟')) {

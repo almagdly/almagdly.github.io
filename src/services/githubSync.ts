@@ -98,6 +98,7 @@ class GitHubSyncService {
     }
 
     this.isSyncing = true;
+    this.notifySyncStatus({ isSyncing: true, message: 'جاري نشر التعديلات للمستودع والموقع...' });
 
     try {
       // 1. Prepare published payload (strip private token & pin from public repository file)
@@ -184,16 +185,21 @@ class GitHubSyncService {
         lastSyncTime: new Date().toISOString(),
       });
 
+      const successMsg = 'تم نشر التعديلات بنجاح تام إلى المستودع! ستظهر في الموقع لجميع الزوار خلال لحظات.';
+      this.notifySyncStatus({ isSyncing: false, success: true, message: successMsg });
+
       return {
         success: true,
-        message: 'تم نشر التعديلات بنجاح تام إلى المستودع! ستظهر في الموقع لجميع الزوار خلال لحظات.',
+        message: successMsg,
         commitUrl: lastCommitUrl,
       };
     } catch (e: any) {
       console.error('Error syncing to GitHub:', e);
+      const errorMsg = `تعذر النشر إلى المستودع: ${e.message || 'خطأ غير معروف'}`;
+      this.notifySyncStatus({ isSyncing: false, success: false, message: errorMsg });
       return {
         success: false,
-        message: `تعذر النشر إلى المستودع: ${e.message || 'خطأ غير معروف'}`,
+        message: errorMsg,
       };
     } finally {
       this.isSyncing = false;
@@ -238,6 +244,86 @@ class GitHubSyncService {
       success: false,
       message: 'لم يتم العثور على ملف بيانات منشور في المستودع حتى الآن.',
     };
+  }
+
+  /**
+   * Fetch official traffic and visitor analytics directly from GitHub API
+   */
+  public async fetchTrafficData(): Promise<{
+    success: boolean;
+    data?: any;
+    message: string;
+  }> {
+    const settings = adminStore.getSettings();
+    const token = settings.githubToken?.trim();
+    const repo = settings.githubRepo?.trim() || 'almagdly/almagdly.github.io';
+
+    if (!token) {
+      return { success: false, message: 'رمز الوصول الشخصي غير متوفر.' };
+    }
+
+    try {
+      const res = await fetch(`https://api.github.com/repos/${repo}/traffic/views`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (!res.ok) {
+        return { success: false, message: `تعذر جلب بيانات الزيارات من GitHub (${res.statusText})` };
+      }
+
+      const data = await res.json();
+      const analytics = adminStore.getAnalytics();
+      const totalViews = data.count || 0;
+      const uniqueViews = data.uniques || 0;
+
+      analytics.githubViewsCount = totalViews;
+      analytics.githubUniquesCount = uniqueViews;
+      analytics.githubViewsHistory = data.views || [];
+      analytics.lastTrafficFetch = new Date().toISOString();
+
+      // Check today's views from GitHub traffic
+      const todayIso = new Date().toISOString().split('T')[0];
+      const todayEntry = (data.views || []).find((v: any) => v.timestamp?.startsWith(todayIso));
+      if (todayEntry) {
+        analytics.todayVisits = Math.max(analytics.todayVisits || 0, todayEntry.count);
+      }
+
+      // Aggregate: totalVisits is at least the verified GitHub count
+      analytics.totalVisits = Math.max(analytics.totalVisits || 0, totalViews);
+      analytics.uniqueVisitors = Math.max(analytics.uniqueVisitors || 0, uniqueViews);
+
+      // Save updated analytics to store
+      adminStore.saveAnalytics(analytics);
+
+      return {
+        success: true,
+        data,
+        message: `تم جلب بيانات الزيارات الحقيقية بنجاح من GitHub (${totalViews} زيارة موثقة).`,
+      };
+    } catch (e: any) {
+      return { success: false, message: `فشل الاتصال: ${e.message || 'خطأ غير معروف'}` };
+    }
+  }
+
+  // === SYNC STATUS LISTENERS ===
+  private syncListeners = new Set<(status: { isSyncing: boolean; message?: string; success?: boolean }) => void>();
+
+  public subscribeSyncStatus(fn: (status: { isSyncing: boolean; message?: string; success?: boolean }) => void) {
+    this.syncListeners.add(fn);
+    return () => {
+      this.syncListeners.delete(fn);
+    };
+  }
+
+  public notifySyncStatus(status: { isSyncing: boolean; message?: string; success?: boolean }) {
+    this.syncListeners.forEach(fn => {
+      try {
+        fn(status);
+      } catch {}
+    });
   }
 }
 
