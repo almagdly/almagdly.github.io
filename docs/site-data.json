@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T16:18:44.449Z",
+  "updatedAt": "2026-09-24T16:22:00.020Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -21,7 +21,8 @@
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
-    "autoSyncToGithub": true
+    "autoSyncToGithub": true,
+    "lastSyncTime": "2026-09-24T16:18:53.717Z"
   },
   "designs": [
     {
