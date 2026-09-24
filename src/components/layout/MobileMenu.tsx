@@ -113,6 +113,20 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
               </span>
             )}
           </Link>
+
+          {/* Admin Link */}
+          <Link
+            to="/admin"
+            onClick={onClose}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              location.pathname === '/admin'
+                ? 'bg-brand-surface text-brand-gold border border-brand-gold/30'
+                : 'text-brand-ivory/50 hover:bg-brand-surface/40 hover:text-brand-gold'
+            }`}
+          >
+            <SquaresFour size={20} className="text-brand-gold/70" />
+            <span>لوحة الإدارة</span>
+          </Link>
         </div>
 
         {/* Bottom CTAs */}

@@ -24,6 +24,17 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
+  // Seamless redirect for /admin path to hash router #/admin
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      const h = window.location.hash;
+      if (p.includes('/admin') && !h.includes('/admin')) {
+        window.location.hash = '/admin';
+      }
+    }
+  }, []);
+
   // Fetch latest published data from repo for all visitors
   React.useEffect(() => {
     adminStore.fetchRemotePublishedData();

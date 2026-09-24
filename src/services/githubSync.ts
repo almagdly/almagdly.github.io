@@ -172,6 +172,39 @@ class GitHubSyncService {
         );
 
         if (!putRes.ok) {
+          if (putRes.status === 409) {
+            // SHA mismatch/conflict: fetch freshest remote SHA and retry once
+            const retryGet = await fetch(
+              `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}&t=${Date.now()}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  Accept: 'application/vnd.github.v3+json',
+                },
+              }
+            );
+            if (retryGet.ok) {
+              const freshData = await retryGet.json();
+              putBody.sha = freshData.sha;
+              const retryPut = await fetch(
+                `https://api.github.com/repos/${repo}/contents/${filePath}`,
+                {
+                  method: 'PUT',
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/vnd.github.v3+json',
+                  },
+                  body: JSON.stringify(putBody),
+                }
+              );
+              if (retryPut.ok) {
+                const freshResult = await retryPut.json();
+                lastCommitUrl = freshResult.commit?.html_url || '';
+                continue;
+              }
+            }
+          }
           const errData = await putRes.json().catch(() => ({}));
           throw new Error(errData.message || `HTTP ${putRes.status}: فشل رفع ${filePath}`);
         }
