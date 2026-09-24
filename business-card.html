@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بطاقة تعريفية لشركة المجد للمطابخ الحديثة والديكور — جاهزة للطباعة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    :root {
+      --bg-teal: #02282D;
+      --bg-surface: #043337;
+      --gold: #BB9A6B;
+      --gold-light: #DFCAA7;
+      --gold-dark: #9B7C4F;
+      --ivory: #F6F1E8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Alexandria', sans-serif;
+      background-color: #0d1517;
+      color: var(--ivory);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Screen UI Header */
+    .header {
+      text-align: center;
+      max-width: 800px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: rgba(246, 241, 232, 0.7);
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+      color: #02282D;
+      border: none;
+      box-shadow: 0 4px 15px rgba(187, 154, 107, 0.3);
+    }
+
+    .btn-gold:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: rgba(4, 51, 55, 0.6);
+      color: var(--ivory);
+      border: 1px solid rgba(187, 154, 107, 0.3);
+    }
+
+    .btn-outline:hover {
+      background: rgba(4, 51, 55, 1);
+      border-color: var(--gold);
+    }
+
+    /* Business Cards Container */
+    .cards-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .card-preview-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+
+    /* Standard Card Dimensions: 90mm x 55mm (or 85mm x 55mm) */
+    .business-card {
+      width: 510px; /* ~90mm at screen scale */
+      height: 312px; /* ~55mm at screen scale */
+      background: radial-gradient(circle at 50% 30%, #053b42 0%, #02282D 100%);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(187, 154, 107, 0.3);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Luxury Double Gold Border */
+    .card-border {
+      position: absolute;
+      inset: 12px;
+      border: 1.5px solid rgba(187, 154, 107, 0.6);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .card-border::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 0.8px solid rgba(187, 154, 107, 0.35);
+      border-radius: 5px;
+    }
+
+    /* Decorative Corner Accents */
+    .corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--gold-light);
+      pointer-events: none;
+    }
+    .corner-tl { top: 9px; right: 9px; border-top: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+    .corner-tr { top: 9px; left: 9px; border-top: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+    .corner-bl { bottom: 9px; right: 9px; border-bottom: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+    .corner-br { bottom: 9px; left: 9px; border-bottom: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+
+    /* FRONT SIDE */
+    .card-front {
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .front-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .front-logo-img {
+      height: 95px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    }
+
+    .front-divider {
+      width: 140px;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 4px 0;
+    }
+
+    .front-tagline {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--gold-light);
+      line-height: 1.5;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      z-index: 2;
+    }
+
+    .front-city {
+      font-size: 11px;
+      color: rgba(246, 241, 232, 0.6);
+      font-weight: 400;
+      z-index: 2;
+    }
+
+    /* BACK SIDE */
+    .card-back {
+      padding: 24px;
+      z-index: 2;
+    }
+
+    .back-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(187, 154, 107, 0.25);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .back-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-logo-small {
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .back-title-group h2 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .back-title-group span {
+      font-size: 9.5px;
+      color: rgba(246, 241, 232, 0.65);
+      display: block;
+    }
+
+    .back-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--ivory);
+    }
+
+    .contact-item i {
+      color: var(--gold);
+      font-size: 14px;
+      width: 16px;
+      text-align: center;
+    }
+
+    .contact-item strong {
+      font-family: monospace, 'Alexandria';
+      letter-spacing: 0.5px;
+      font-size: 12px;
+    }
+
+    /* QR Code Side Box */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      background: rgba(2, 40, 45, 0.7);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(187, 154, 107, 0.35);
+    }
+
+    .qr-img {
+      width: 78px;
+      height: 78px;
+      border-radius: 6px;
+      background: white;
+      padding: 3px;
+    }
+
+    .qr-text {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    .social-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(187, 154, 107, 0.15);
+      font-size: 10px;
+      color: var(--gold-light);
+    }
+
+    .social-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .social-item i {
+      font-size: 13px;
+      color: var(--gold);
+    }
+
+    /* Presentation Images Section */
+    .showcase-section {
+      width: 100%;
+      max-width: 1040px;
+      margin-top: 20px;
+      background: rgba(4, 51, 55, 0.4);
+      border: 1px solid rgba(187, 154, 107, 0.2);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .showcase-section h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .showcase-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .showcase-card {
+      background: #02282D;
+      border: 1px solid rgba(187, 154, 107, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .showcase-card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .showcase-card-body {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .showcase-card-body span {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ivory);
+    }
+
+    /* Print Styles (Exact 90mm x 55mm Business Card Output) */
+    @media print {
+      @page {
+        size: 90mm 55mm;
+        margin: 0;
+      }
+
+      body {
+        background: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .header, .actions-bar, .card-label, .showcase-section {
+        display: none !important;
+      }
+
+      .cards-wrapper {
+        gap: 0;
+        margin: 0;
+      }
+
+      .card-preview-box {
+        page-break-after: always;
+        break-after: page;
+        margin: 0;
+        padding: 0;
+      }
+
+      .business-card {
+        width: 90mm;
+        height: 55mm;
+        border-radius: 0;
+        box-shadow: none;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen Controls -->
+  <div class="header">
+    <h1>بطاقة تعريفية لشركة المجد للمطابخ الحديثة</h1>
+    <p>تصميم فاخر ذو وجهين بالهوية الرسمية (الأخضر التيل الملكي والذهب الدافئ) مع رمز QR ومواقع التواصل</p>
+  </div>
+
+  <div class="actions-bar">
+    <button onclick="window.print()" class="btn btn-gold">
+      <i class="ph ph-printer"></i>
+      <span>طباعة البطاقة أو حفظ PDF</span>
+    </button>
+
+    <a href="./brand/business_card_mockup.jpg" download="almagd_business_card_mockup.jpg" class="btn btn-outline">
+      <i class="ph ph-download-simple"></i>
+      <span>تحميل موكاب ثلاثي الأبعاد (3D)</span>
+    </a>
+
+    <a href="./brand/business_card_flat.jpg" download="almagd_business_card_print.jpg" class="btn btn-outline">
+      <i class="ph ph-image"></i>
+      <span>تحميل صورة الطباعة المسطحة (Flat)</span>
+    </a>
+
+    <a href="./" class="btn btn-outline">
+      <i class="ph ph-arrow-left"></i>
+      <span>العودة للموقع</span>
+    </a>
+  </div>
+
+  <!-- Business Cards Display (Vector / Printable) -->
+  <div class="cards-wrapper">
+
+    <!-- FRONT SIDE -->
+    <div class="card-preview-box">
+      <span class="card-label">الوجه الأمامي (Front)</span>
+      <div class="business-card card-front">
+        <div class="card-border"></div>
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="front-logo-wrap">
+          <img src="./brand/logo.png" alt="شعار شركة المجد" class="front-logo-img">
+          <div class="front-divider"></div>
+          <div class="front-tagline">
+            للمطابخ الحديثة، غرف النوم، والديكورات الداخلية
+          </div>
+          <div class="front-city">
+            ليبيا — البيضاء
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACK SIDE -->
+    <div class="card-preview-box">
+      <span class="card-label">الوجه الخلفي (Back)</span>
+      <div class="business-card card-back">
+        <div class="card-border"></div>
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <!-- Back Header -->
+        <div class="back-top">
+          <div class="back-brand">
+            <img src="./brand/logo.png" alt="شعار المجد" class="back-logo-small">
+            <div class="back-title-group">
+              <h2>شركة المجد</h2>
+              <span>AL MAGD MODERN KITCHENS</span>
+            </div>
+          </div>
+          <span style="font-size: 10px; color: var(--gold); font-weight: 700;">جودة • فخامة • إتقان</span>
+        </div>
+
+        <!-- Back Content -->
+        <div class="back-content">
+          <!-- Info list -->
+          <div class="contact-list">
+            <div class="contact-item">
+              <i class="ph-bold ph-phone"></i>
+              <span>هاتف / واتساب: <strong>094 5919679</strong></span>
+            </div>
+
+            <div class="contact-item">
+              <i class="ph-bold ph-map-pin"></i>
+              <span>البيضاء، شارع القهاوي (قرب قرطاسية بغداد)</span>
+            </div>
+
+            <div class="contact-item">
+              <i class="ph-bold ph-globe"></i>
+              <span>الموقع الإلكتروني: <strong>almagdly.github.io</strong></span>
+            </div>
+
+            <div class="contact-item">
+              <i class="ph-bold ph-clock"></i>
+              <span>السبت - الخميس: 9:00 ص - 9:00 م</span>
+            </div>
+          </div>
+
+          <!-- QR Code -->
+          <div class="qr-container">
+            <img 
+              src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Falmagdly.github.io%2F&color=02282D&bgcolor=FFFFFF" 
+              alt="QR Code" 
+              class="qr-img"
+            >
+            <span class="qr-text">امسح لزيارة الموقع</span>
+          </div>
+        </div>
+
+        <!-- Social Media Row -->
+        <div class="social-row">
+          <div class="social-item">
+            <i class="ph-bold ph-facebook-logo"></i>
+            <span>شركة المجد للمطابخ الحديثة و P.V.C</span>
+          </div>
+
+          <div class="social-item">
+            <i class="ph-bold ph-tiktok-logo"></i>
+            <span>TikTok: @almajdone</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Realistic Renderings / Downloadable Images -->
+  <div class="showcase-section">
+    <h3>معاينة الصور الرقمية الجاهزة للتنزيل والطباعة في المطابع</h3>
+    <div class="showcase-grid">
+
+      <div class="showcase-card">
+        <img src="./brand/business_card_mockup.jpg" alt="موكاب ثلاثي الأبعاد للبطاقة">
+        <div class="showcase-card-body">
+          <span>العرض الواقعي ثلاثي الأبعاد (3D Mockup)</span>
+          <a href="./brand/business_card_mockup.jpg" download class="btn btn-gold" style="padding: 8px 16px; font-size: 12px;">
+            تحميل
+          </a>
+        </div>
+      </div>
+
+      <div class="showcase-card">
+        <img src="./brand/business_card_flat.jpg" alt="تصميم البطاقة المسطح للطباعة">
+        <div class="showcase-card-body">
+          <span>التصميم المسطح عالي الدقة (2D Print Ready)</span>
+          <a href="./brand/business_card_flat.jpg" download class="btn btn-gold" style="padding: 8px 16px; font-size: 12px;">
+            تحميل
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
