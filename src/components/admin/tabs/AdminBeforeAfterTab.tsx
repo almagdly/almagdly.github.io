@@ -161,32 +161,8 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
     setError('');
 
     try {
-      let finalBefore = beforeImage.trim();
-      let finalAfter = afterImage.trim();
-
-      // If GitHub Token is present, attempt background asset upload to repo so site-data stays tiny
-      const settings = adminStore.getSettings();
-      const token = settings.githubToken?.trim();
-      const repo = settings.githubRepo?.trim() || 'almagdly/almagdly.github.io';
-      const branch = settings.githubBranch?.trim() || 'main';
-      const timestamp = Date.now();
-
-      if (token) {
-        if (isDataUrl(finalBefore)) {
-          const beforeName = `ba-${timestamp}-before.jpg`;
-          const uploadedUrl = await uploadImageToGitHub(finalBefore, beforeName, token, repo, branch);
-          if (uploadedUrl) {
-            finalBefore = uploadedUrl;
-          }
-        }
-        if (isDataUrl(finalAfter)) {
-          const afterName = `ba-${timestamp}-after.jpg`;
-          const uploadedUrl = await uploadImageToGitHub(finalAfter, afterName, token, repo, branch);
-          if (uploadedUrl) {
-            finalAfter = uploadedUrl;
-          }
-        }
-      }
+      const finalBefore = beforeImage.trim();
+      const finalAfter = afterImage.trim();
 
       if (editingItem) {
         adminStore.updateBeforeAfter(editingItem.id, {
@@ -263,14 +239,11 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
             <div className="relative h-52 bg-black/60 overflow-hidden group">
               <div className="grid grid-cols-2 h-full">
                 {/* Before Side */}
-                <div className="relative h-full border-l border-brand-gold/30 overflow-hidden">
+                <div className="relative h-full border-l border-brand-gold/30 overflow-hidden bg-black/40">
                   <img
                     src={item.beforeImage}
                     alt="قبل"
                     className="w-full h-full object-cover"
-                    onError={e => {
-                      (e.target as HTMLImageElement).src = './projects/p2.jpg';
-                    }}
                   />
                   <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-bold text-amber-300 border border-amber-400/30">
                     قبل التنفيذ
@@ -278,14 +251,11 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                 </div>
 
                 {/* After Side */}
-                <div className="relative h-full overflow-hidden">
+                <div className="relative h-full overflow-hidden bg-black/40">
                   <img
                     src={item.afterImage}
                     alt="بعد"
                     className="w-full h-full object-cover"
-                    onError={e => {
-                      (e.target as HTMLImageElement).src = './projects/p1.jpg';
-                    }}
                   />
                   <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-bold text-emerald-300 border border-emerald-400/30">
                     بعد التنفيذ
@@ -440,9 +410,6 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                           src={beforeImage}
                           alt="معاينة قبل"
                           className="w-full h-full object-cover"
-                          onError={e => {
-                            (e.target as HTMLImageElement).src = './projects/p2.jpg';
-                          }}
                         />
                         <button
                           type="button"
@@ -527,9 +494,6 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                           src={afterImage}
                           alt="معاينة بعد"
                           className="w-full h-full object-cover"
-                          onError={e => {
-                            (e.target as HTMLImageElement).src = './projects/p1.jpg';
-                          }}
                         />
                         <button
                           type="button"

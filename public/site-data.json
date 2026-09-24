@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-17T17:35:20.443Z",
+  "updatedAt": "2026-09-24T16:22:00.020Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -8,7 +8,6 @@
     "tiktokUrl": "https://tiktok.com/@almajdone?_r=1&_t=ZS-99ataXUqlyk",
     "address": "ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)",
     "workingHours": "السبت - الخميس: 9:00 ص - 9:00 م",
-    "adminPin": "2026",
     "heroImage": "./projects/p1.jpg",
     "heroTagline": "شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء",
     "homepageDesignIds": [
@@ -22,7 +21,8 @@
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
-    "autoSyncToGithub": true
+    "autoSyncToGithub": true,
+    "lastSyncTime": "2026-09-24T16:18:53.717Z"
   },
   "designs": [
     {

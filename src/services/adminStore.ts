@@ -108,6 +108,14 @@ class AdminStore {
   private syncTimer: ReturnType<typeof setTimeout> | null = null;
   private inMemoryBeforeAfter: BeforeAfterItem[] | null = null;
   private inMemoryDesigns: DesignItem[] | null = null;
+  private lastLocalEditTime = typeof window !== 'undefined' ? Number(localStorage.getItem('almagd_last_local_edit') || '0') : 0;
+
+  private markLocalEdit() {
+    this.lastLocalEditTime = Date.now();
+    try {
+      localStorage.setItem('almagd_last_local_edit', String(this.lastLocalEditTime));
+    } catch {}
+  }
 
   /**
    * Debounced auto-publish: pushes admin content edits to GitHub
@@ -156,6 +164,7 @@ class AdminStore {
 
   saveDesigns(designs: DesignItem[]) {
     this.inMemoryDesigns = [...designs];
+    this.markLocalEdit();
     try {
       localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(designs));
     } catch (e) {
@@ -293,6 +302,7 @@ class AdminStore {
 
   saveBeforeAfter(items: BeforeAfterItem[]) {
     this.inMemoryBeforeAfter = [...items];
+    this.markLocalEdit();
     try {
       localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(items));
     } catch (e) {
@@ -657,7 +667,21 @@ class AdminStore {
     settings?: Partial<SiteSettings>;
     designs?: DesignItem[];
     beforeAfter?: BeforeAfterItem[];
+    updatedAt?: string;
   }) {
+    // Guard: never overwrite fresh local admin edits with older data from server
+    if (data.updatedAt) {
+      const remoteTime = new Date(data.updatedAt).getTime();
+      const localTime = Math.max(
+        this.lastLocalEditTime,
+        typeof window !== 'undefined' ? Number(localStorage.getItem('almagd_last_local_edit') || '0') : 0
+      );
+      if (localTime > 0 && remoteTime > 0 && remoteTime < localTime) {
+        console.log('Skipping remote data hydration: local admin edits are newer than remote timestamp');
+        return;
+      }
+    }
+
     if (data.designs && Array.isArray(data.designs) && data.designs.length > 0) {
       this.inMemoryDesigns = data.designs;
       try {
