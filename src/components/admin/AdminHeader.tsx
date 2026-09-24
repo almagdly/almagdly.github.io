@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SignOut, ArrowSquareOut, List, Bell, ShieldCheck, CloudArrowUp, CircleNotch, CheckCircle } from '@phosphor-icons/react';
+import { SignOut, ArrowSquareOut, List, Bell, ShieldCheck, CloudArrowUp, CircleNotch, CheckCircle, IdentificationCard } from '@phosphor-icons/react';
 import { adminStore } from '../../services/adminStore';
 import { githubSync } from '../../services/githubSync';
 
@@ -130,6 +130,18 @@ export const AdminHeader: React.FC<Props> = ({
         >
           <span>زيارة الموقع</span>
           <ArrowSquareOut size={15} />
+        </a>
+
+        {/* Printable Business Card */}
+        <a
+          href="./business-card.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-gold/15 border border-brand-gold/40 text-brand-gold hover:bg-brand-gold/25 transition-colors"
+          title="معاينة وطباعة بطاقة العمل (Business Card)"
+        >
+          <IdentificationCard size={16} weight="bold" />
+          <span>بطاقة الشركة</span>
         </a>
 
         {/* Logout */}
