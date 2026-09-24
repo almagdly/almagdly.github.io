@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T17:42:39.895Z",
+  "updatedAt": "2026-09-24T17:42:55.106Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -15,13 +15,15 @@
       "mg-k-04",
       "p33",
       "p56",
-      "p60"
+      "p60",
+      "p58",
+      "p62"
     ],
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
     "autoSyncToGithub": true,
-    "lastSyncTime": "2026-09-24T17:42:39.167Z"
+    "lastSyncTime": "2026-09-24T17:42:49.630Z"
   },
   "designs": [
     {
@@ -4983,7 +4985,7 @@
       "views": 1746,
       "favoritesCount": 552,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": false,
       "aspectRatio": "tall"
     },
