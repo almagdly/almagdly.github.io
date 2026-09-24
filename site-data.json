@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T17:21:11.894Z",
+  "updatedAt": "2026-09-24T17:21:57.367Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -22,7 +22,7 @@
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
     "autoSyncToGithub": true,
-    "lastSyncTime": "2026-09-24T17:20:56.063Z"
+    "lastSyncTime": "2026-09-24T17:21:18.599Z"
   },
   "designs": [
     {
@@ -7980,6 +7980,16 @@
     }
   ],
   "beforeAfter": [
+    {
+      "titleArabic": "انشاء مطبخ مودرين",
+      "categoryArabic": "مطابخ حديثة",
+      "location": "البيضاء",
+      "duration": "أسبوعين",
+      "description": "مطبخ",
+      "beforeImage": "./uploads/ba-1790270507046-before.jpg",
+      "afterImage": "./uploads/ba-1790270507046-after.jpg",
+      "id": "ba-1790270514353"
+    },
     {
       "id": "ba-01",
       "titleArabic": "تجديد وتطوير مطبخ مودرن بإضاءات مخفية",
