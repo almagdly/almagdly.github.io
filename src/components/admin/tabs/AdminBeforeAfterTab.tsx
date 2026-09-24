@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   ArrowsHorizontal,
   PlusCircle,
@@ -10,11 +10,14 @@ import {
   MapPin,
   Clock,
   ArrowCounterClockwise,
-  Eye,
   CheckCircle,
+  SpinnerGap,
+  Image as ImageIcon,
+  Sparkle,
 } from '@phosphor-icons/react';
-import { BeforeAfterItem, CategoryType } from '../../../types';
+import { BeforeAfterItem } from '../../../types';
 import { adminStore } from '../../../services/adminStore';
+import { compressImageFile, isDataUrl, uploadImageToGitHub, getDataUrlSizeKb } from '../../../utils/imageOptimizer';
 
 interface Props {
   beforeAfterList: BeforeAfterItem[];
@@ -32,8 +35,15 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
   const [description, setDescription] = useState('');
   const [beforeImage, setBeforeImage] = useState('');
   const [afterImage, setAfterImage] = useState('');
+  const [beforeSizeKb, setBeforeSizeKb] = useState<number | null>(null);
+  const [afterSizeKb, setAfterSizeKb] = useState<number | null>(null);
+
+  // Processing & Loading States
+  const [isUploadingBefore, setIsUploadingBefore] = useState(false);
+  const [isUploadingAfter, setIsUploadingAfter] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
-  const [previewSliderPos, setPreviewSliderPos] = useState(50);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -42,10 +52,21 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
     setLocation('البيضاء');
     setDuration('أسبوعين');
     setDescription('');
+    setBeforeImage('');
+    setAfterImage('');
+    setBeforeSizeKb(null);
+    setAfterSizeKb(null);
+    setError('');
+    setSaveSuccessMsg('');
+    setModalOpen(true);
+  };
+
+  const handleLoadDemoImages = () => {
     setBeforeImage('./projects/p2.jpg');
     setAfterImage('./projects/p1.jpg');
+    setBeforeSizeKb(null);
+    setAfterSizeKb(null);
     setError('');
-    setModalOpen(true);
   };
 
   const handleOpenEdit = (item: BeforeAfterItem) => {
@@ -57,7 +78,10 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
     setDescription(item.description || '');
     setBeforeImage(item.beforeImage);
     setAfterImage(item.afterImage);
+    setBeforeSizeKb(isDataUrl(item.beforeImage) ? getDataUrlSizeKb(item.beforeImage) : null);
+    setAfterSizeKb(isDataUrl(item.afterImage) ? getDataUrlSizeKb(item.afterImage) : null);
     setError('');
+    setSaveSuccessMsg('');
     setModalOpen(true);
   };
 
@@ -73,59 +97,126 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
     }
   };
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     target: 'before' | 'after'
   ) => {
     const file = e.target.files?.[0];
+    // Reset file input value so re-selecting same file works
+    e.target.value = '';
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const dataUrl = ev.target?.result as string;
+    if (!file.type.startsWith('image/')) {
+      setError('يرجى اختيار ملف صورة صالح (JPG, PNG, WebP)');
+      return;
+    }
+
+    if (target === 'before') {
+      setIsUploadingBefore(true);
+    } else {
+      setIsUploadingAfter(true);
+    }
+    setError('');
+
+    try {
+      // Compress and optimize camera/phone photo to lightweight crisp web format (~50KB-90KB)
+      const res = await compressImageFile(file, {
+        maxWidth: 1280,
+        maxHeight: 1000,
+        quality: 0.78,
+        maxSizeKb: 120,
+      });
+
       if (target === 'before') {
-        setBeforeImage(dataUrl);
+        setBeforeImage(res.dataUrl);
+        setBeforeSizeKb(res.sizeKb);
       } else {
-        setAfterImage(dataUrl);
+        setAfterImage(res.dataUrl);
+        setAfterSizeKb(res.sizeKb);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      console.error('Image compression failed:', err);
+      setError('فشل في معالجة وضغط الصورة: ' + (err.message || ''));
+    } finally {
+      if (target === 'before') {
+        setIsUploadingBefore(false);
+      } else {
+        setIsUploadingAfter(false);
+      }
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titleArabic.trim()) {
       setError('يرجى إدخال عنوان النموذج');
       return;
     }
     if (!beforeImage.trim() || !afterImage.trim()) {
-      setError('يرجى تحديد صورتي قبل وبعد');
+      setError('يرجى اختيار وتحديد صورتي قبل وبعد التنفيذ');
       return;
     }
 
-    if (editingItem) {
-      adminStore.updateBeforeAfter(editingItem.id, {
-        titleArabic: titleArabic.trim(),
-        categoryArabic,
-        location: location.trim(),
-        duration: duration.trim(),
-        description: description.trim(),
-        beforeImage: beforeImage.trim(),
-        afterImage: afterImage.trim(),
-      });
-    } else {
-      adminStore.addBeforeAfter({
-        titleArabic: titleArabic.trim(),
-        categoryArabic,
-        location: location.trim(),
-        duration: duration.trim(),
-        description: description.trim(),
-        beforeImage: beforeImage.trim(),
-        afterImage: afterImage.trim(),
-      });
-    }
+    setIsSaving(true);
+    setError('');
 
-    setModalOpen(false);
+    try {
+      let finalBefore = beforeImage.trim();
+      let finalAfter = afterImage.trim();
+
+      // If GitHub Token is present, attempt background asset upload to repo so site-data stays tiny
+      const settings = adminStore.getSettings();
+      const token = settings.githubToken?.trim();
+      const repo = settings.githubRepo?.trim() || 'almagdly/almagdly.github.io';
+      const branch = settings.githubBranch?.trim() || 'main';
+      const timestamp = Date.now();
+
+      if (token) {
+        if (isDataUrl(finalBefore)) {
+          const beforeName = `ba-${timestamp}-before.jpg`;
+          const uploadedUrl = await uploadImageToGitHub(finalBefore, beforeName, token, repo, branch);
+          if (uploadedUrl) {
+            finalBefore = uploadedUrl;
+          }
+        }
+        if (isDataUrl(finalAfter)) {
+          const afterName = `ba-${timestamp}-after.jpg`;
+          const uploadedUrl = await uploadImageToGitHub(finalAfter, afterName, token, repo, branch);
+          if (uploadedUrl) {
+            finalAfter = uploadedUrl;
+          }
+        }
+      }
+
+      if (editingItem) {
+        adminStore.updateBeforeAfter(editingItem.id, {
+          titleArabic: titleArabic.trim(),
+          categoryArabic,
+          location: location.trim(),
+          duration: duration.trim(),
+          description: description.trim(),
+          beforeImage: finalBefore,
+          afterImage: finalAfter,
+        });
+      } else {
+        adminStore.addBeforeAfter({
+          titleArabic: titleArabic.trim(),
+          categoryArabic,
+          location: location.trim(),
+          duration: duration.trim(),
+          description: description.trim(),
+          beforeImage: finalBefore,
+          afterImage: finalAfter,
+        });
+      }
+
+      setModalOpen(false);
+    } catch (err: any) {
+      console.error('Error saving before/after:', err);
+      setError('حدث خطأ أثناء حفظ النموذج: ' + (err.message || ''));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -260,9 +351,12 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
           <div className="relative w-full max-w-2xl bg-brand-surface border border-brand-gold/30 rounded-3xl shadow-2xl overflow-hidden my-8 animate-scaleUp">
             {/* Header */}
             <div className="px-6 py-4 border-b border-brand-gold/20 flex items-center justify-between bg-black/30">
-              <h3 className="text-base font-bold text-brand-ivory font-arabic">
-                {editingItem ? 'تعديل نموذج قبل وبعد' : 'إضافة نموذج جديد لقسم قبل وبعد'}
-              </h3>
+              <div className="flex items-center gap-2">
+                <ArrowsHorizontal size={20} className="text-brand-gold" />
+                <h3 className="text-base font-bold text-brand-ivory font-arabic">
+                  {editingItem ? 'تعديل نموذج قبل وبعد' : 'إضافة نموذج جديد لقسم قبل وبعد'}
+                </h3>
+              </div>
               <button
                 onClick={() => setModalOpen(false)}
                 className="p-1.5 rounded-lg text-brand-ivory/60 hover:text-brand-ivory hover:bg-white/10"
@@ -274,7 +368,7 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
               {error && (
-                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-medium">
+                <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-medium">
                   {error}
                 </div>
               )}
@@ -294,15 +388,36 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                 />
               </div>
 
+              {/* Fast Demo Images Button (if empty) */}
+              {!beforeImage && !afterImage && (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-brand-gold/5 border border-brand-gold/20">
+                  <span className="text-xs text-brand-ivory/80 flex items-center gap-1.5">
+                    <Sparkle size={15} className="text-brand-gold" />
+                    <span>يمكنك رفع صورك الخاصة، أو استخدام صور تجريبية للتجربة السريعة:</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleLoadDemoImages}
+                    className="px-3 py-1 rounded-lg bg-brand-gold/20 border border-brand-gold/40 text-[11px] font-bold text-brand-gold hover:bg-brand-gold/30 transition-all"
+                  >
+                    صور تجريبية
+                  </button>
+                </div>
+              )}
+
               {/* Two Images: Before & After */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Before Image */}
+                {/* Before Image Box */}
                 <div className="p-4 rounded-2xl bg-black/30 border border-amber-500/30 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-300">صورة قبل التنفيذ</span>
-                    <label className="cursor-pointer text-[11px] text-brand-gold hover:underline flex items-center gap-1">
-                      <UploadSimple size={14} />
-                      <span>رفع صورة</span>
+                    <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <span>صورة قبل التنفيذ</span>
+                      <span className="text-rose-400">*</span>
+                    </span>
+
+                    <label className="cursor-pointer text-[11px] text-brand-gold hover:underline flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                      <UploadSimple size={13} />
+                      <span>{beforeImage ? 'تغيير الصورة' : 'رفع صورة'}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -312,34 +427,84 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                     </label>
                   </div>
 
-                  <div className="h-32 rounded-xl bg-black/50 border border-amber-500/20 overflow-hidden">
-                    <img
-                      src={beforeImage}
-                      alt="معاينة قبل"
-                      className="w-full h-full object-cover"
-                      onError={e => {
-                        (e.target as HTMLImageElement).src = './projects/p2.jpg';
-                      }}
-                    />
+                  {/* Preview Container */}
+                  <div className="h-36 rounded-xl bg-black/60 border border-amber-500/20 overflow-hidden relative flex items-center justify-center">
+                    {isUploadingBefore ? (
+                      <div className="flex flex-col items-center gap-2 text-amber-300 text-xs">
+                        <SpinnerGap size={24} className="animate-spin text-brand-gold" />
+                        <span>جاري ضغط ومعالجة الصورة...</span>
+                      </div>
+                    ) : beforeImage ? (
+                      <div className="relative w-full h-full group">
+                        <img
+                          src={beforeImage}
+                          alt="معاينة قبل"
+                          className="w-full h-full object-cover"
+                          onError={e => {
+                            (e.target as HTMLImageElement).src = './projects/p2.jpg';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBeforeImage('');
+                            setBeforeSizeKb(null);
+                          }}
+                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-rose-400 hover:bg-rose-500/20 transition-all"
+                          title="إزالة الصورة"
+                        >
+                          <Trash size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer flex flex-col items-center gap-2 text-brand-ivory/40 hover:text-brand-ivory/80 transition-colors p-4 text-center">
+                        <ImageIcon size={32} />
+                        <span className="text-xs">اضغط هنا لرفع صورة "قبل" من جهازك</span>
+                        <span className="text-[10px] text-brand-ivory/30">JPG, PNG, WebP (يتم الضغط تلقائياً)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={e => handleImageUpload(e, 'before')}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
                   </div>
 
-                  <input
-                    type="text"
-                    value={beforeImage}
-                    onChange={e => setBeforeImage(e.target.value)}
-                    placeholder="./projects/p2.jpg أو رابط"
-                    dir="ltr"
-                    className="w-full px-3 py-1.5 bg-black/50 border border-amber-500/20 rounded-lg text-xs font-mono text-brand-ivory"
-                  />
+                  {/* Status / Size / Path */}
+                  <div className="space-y-1">
+                    {beforeSizeKb !== null ? (
+                      <div className="flex items-center justify-between text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                        <span className="flex items-center gap-1">
+                          <CheckCircle size={13} weight="fill" />
+                          <span>صورة مضغوطة وجاهزة</span>
+                        </span>
+                        <span className="font-mono">{beforeSizeKb} KB</span>
+                      </div>
+                    ) : beforeImage && !isDataUrl(beforeImage) ? (
+                      <input
+                        type="text"
+                        value={beforeImage}
+                        onChange={e => setBeforeImage(e.target.value)}
+                        placeholder="./projects/p2.jpg أو رابط"
+                        dir="ltr"
+                        className="w-full px-2.5 py-1 bg-black/50 border border-amber-500/20 rounded-lg text-[11px] font-mono text-brand-ivory/80"
+                      />
+                    ) : null}
+                  </div>
                 </div>
 
-                {/* After Image */}
+                {/* After Image Box */}
                 <div className="p-4 rounded-2xl bg-black/30 border border-emerald-500/30 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-300">صورة بعد التنفيذ</span>
-                    <label className="cursor-pointer text-[11px] text-brand-gold hover:underline flex items-center gap-1">
-                      <UploadSimple size={14} />
-                      <span>رفع صورة</span>
+                    <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      <span>صورة بعد التنفيذ</span>
+                      <span className="text-rose-400">*</span>
+                    </span>
+
+                    <label className="cursor-pointer text-[11px] text-brand-gold hover:underline flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                      <UploadSimple size={13} />
+                      <span>{afterImage ? 'تغيير الصورة' : 'رفع صورة'}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -349,25 +514,71 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                     </label>
                   </div>
 
-                  <div className="h-32 rounded-xl bg-black/50 border border-emerald-500/20 overflow-hidden">
-                    <img
-                      src={afterImage}
-                      alt="معاينة بعد"
-                      className="w-full h-full object-cover"
-                      onError={e => {
-                        (e.target as HTMLImageElement).src = './projects/p1.jpg';
-                      }}
-                    />
+                  {/* Preview Container */}
+                  <div className="h-36 rounded-xl bg-black/60 border border-emerald-500/20 overflow-hidden relative flex items-center justify-center">
+                    {isUploadingAfter ? (
+                      <div className="flex flex-col items-center gap-2 text-emerald-300 text-xs">
+                        <SpinnerGap size={24} className="animate-spin text-brand-gold" />
+                        <span>جاري ضغط ومعالجة الصورة...</span>
+                      </div>
+                    ) : afterImage ? (
+                      <div className="relative w-full h-full group">
+                        <img
+                          src={afterImage}
+                          alt="معاينة بعد"
+                          className="w-full h-full object-cover"
+                          onError={e => {
+                            (e.target as HTMLImageElement).src = './projects/p1.jpg';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAfterImage('');
+                            setAfterSizeKb(null);
+                          }}
+                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 text-rose-400 hover:bg-rose-500/20 transition-all"
+                          title="إزالة الصورة"
+                        >
+                          <Trash size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="cursor-pointer flex flex-col items-center gap-2 text-brand-ivory/40 hover:text-brand-ivory/80 transition-colors p-4 text-center">
+                        <ImageIcon size={32} />
+                        <span className="text-xs">اضغط هنا لرفع صورة "بعد" من جهازك</span>
+                        <span className="text-[10px] text-brand-ivory/30">JPG, PNG, WebP (يتم الضغط تلقائياً)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={e => handleImageUpload(e, 'after')}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
                   </div>
 
-                  <input
-                    type="text"
-                    value={afterImage}
-                    onChange={e => setAfterImage(e.target.value)}
-                    placeholder="./projects/p1.jpg أو رابط"
-                    dir="ltr"
-                    className="w-full px-3 py-1.5 bg-black/50 border border-emerald-500/20 rounded-lg text-xs font-mono text-brand-ivory"
-                  />
+                  {/* Status / Size / Path */}
+                  <div className="space-y-1">
+                    {afterSizeKb !== null ? (
+                      <div className="flex items-center justify-between text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                        <span className="flex items-center gap-1">
+                          <CheckCircle size={13} weight="fill" />
+                          <span>صورة مضغوطة وجاهزة</span>
+                        </span>
+                        <span className="font-mono">{afterSizeKb} KB</span>
+                      </div>
+                    ) : afterImage && !isDataUrl(afterImage) ? (
+                      <input
+                        type="text"
+                        value={afterImage}
+                        onChange={e => setAfterImage(e.target.value)}
+                        placeholder="./projects/p1.jpg أو رابط"
+                        dir="ltr"
+                        className="w-full px-2.5 py-1 bg-black/50 border border-emerald-500/20 rounded-lg text-[11px] font-mono text-brand-ivory/80"
+                      />
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -413,16 +624,27 @@ export const AdminBeforeAfterTab: React.FC<Props> = ({ beforeAfterList }) => {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-brand-ivory/70 hover:bg-white/5"
+                  disabled={isSaving}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-brand-ivory/70 hover:bg-white/5 transition-colors disabled:opacity-50"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-brand-gold to-amber-500 text-brand-dark hover:brightness-110 shadow-lg shadow-brand-gold/20 transition-all"
+                  disabled={isSaving || isUploadingBefore || isUploadingAfter}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-brand-gold to-amber-500 text-brand-dark hover:brightness-110 shadow-lg shadow-brand-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FloppyDisk size={16} weight="bold" />
-                  <span>حفظ النموذج</span>
+                  {isSaving ? (
+                    <>
+                      <SpinnerGap size={16} className="animate-spin" />
+                      <span>جاري الحفظ والمزامنة...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FloppyDisk size={16} weight="bold" />
+                      <span>حفظ النموذج</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

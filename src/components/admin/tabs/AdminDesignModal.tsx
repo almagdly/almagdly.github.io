@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react';
 import { DesignItem, CategoryType, StyleType, SpaceType, ColorType } from '../../../types';
 import { adminStore } from '../../../services/adminStore';
+import { compressImageFile } from '../../../utils/imageOptimizer';
 
 interface Props {
   isOpen: boolean;
@@ -100,8 +101,9 @@ export const AdminDesignModal: React.FC<Props> = ({
 
   if (!isOpen) return null;
 
-  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -110,18 +112,21 @@ export const AdminDesignModal: React.FC<Props> = ({
     }
 
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.onload = event => {
-      const dataUrl = event.target?.result as string;
-      setMainImage(dataUrl);
+    setError('');
+
+    try {
+      const res = await compressImageFile(file, {
+        maxWidth: 1280,
+        maxHeight: 1000,
+        quality: 0.78,
+      });
+      setMainImage(res.dataUrl);
+    } catch (err: any) {
+      console.error('Error compressing design image:', err);
+      setError('فشل في معالجة وضغط الصورة');
+    } finally {
       setIsUploading(false);
-      setError('');
-    };
-    reader.onerror = () => {
-      setError('فشل في قراءة ملف الصورة');
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const toggleColor = (colorId: ColorType) => {

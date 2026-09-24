@@ -17,6 +17,7 @@ import {
 import { DesignItem, CategoryType } from '../../../types';
 import { SiteSettings } from '../../../types/admin';
 import { adminStore } from '../../../services/adminStore';
+import { compressImageFile } from '../../../utils/imageOptimizer';
 
 interface Props {
   designs: DesignItem[];
@@ -77,14 +78,20 @@ export const AdminHomepageTab: React.FC<Props> = ({ designs, settings }) => {
     setTimeout(() => setHeroSaveSuccess(false), 3000);
   };
 
-  const handleHeroFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHeroFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      setHeroImage(ev.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const res = await compressImageFile(file, {
+        maxWidth: 1600,
+        maxHeight: 1000,
+        quality: 0.8,
+      });
+      setHeroImage(res.dataUrl);
+    } catch (err) {
+      console.error('Error compressing hero banner:', err);
+    }
   };
 
   const handleRemoveFromHomepage = (id: string) => {

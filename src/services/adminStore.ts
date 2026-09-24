@@ -106,6 +106,8 @@ function notifyListeners() {
 
 class AdminStore {
   private syncTimer: ReturnType<typeof setTimeout> | null = null;
+  private inMemoryBeforeAfter: BeforeAfterItem[] | null = null;
+  private inMemoryDesigns: DesignItem[] | null = null;
 
   /**
    * Debounced auto-publish: pushes admin content edits to GitHub
@@ -133,28 +135,34 @@ class AdminStore {
 
   // === DESIGNS ===
   getDesigns(): DesignItem[] {
+    if (this.inMemoryDesigns && Array.isArray(this.inMemoryDesigns) && this.inMemoryDesigns.length > 0) {
+      return this.inMemoryDesigns;
+    }
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DESIGNS);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          this.inMemoryDesigns = parsed;
           return parsed;
         }
       }
     } catch (e) {
       console.error('Error reading designs from storage:', e);
     }
-    return initialDesignsData;
+    this.inMemoryDesigns = [...initialDesignsData];
+    return this.inMemoryDesigns;
   }
 
   saveDesigns(designs: DesignItem[]) {
+    this.inMemoryDesigns = [...designs];
     try {
       localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(designs));
-      notifyListeners();
-      this.scheduleRemoteSync();
     } catch (e) {
-      console.error('Error saving designs to storage:', e);
+      console.warn('LocalStorage quota limit reached for designs; preserved in memory and queued for sync:', e);
     }
+    notifyListeners();
+    this.scheduleRemoteSync();
   }
 
   addDesign(design: Omit<DesignItem, 'id' | 'views' | 'favoritesCount' | 'dateAdded' | 'isMostViewed'>): DesignItem {
@@ -264,28 +272,34 @@ class AdminStore {
 
   // === BEFORE & AFTER ===
   getBeforeAfter(): BeforeAfterItem[] {
+    if (this.inMemoryBeforeAfter && Array.isArray(this.inMemoryBeforeAfter) && this.inMemoryBeforeAfter.length > 0) {
+      return this.inMemoryBeforeAfter;
+    }
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BEFORE_AFTER);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          this.inMemoryBeforeAfter = parsed;
           return parsed;
         }
       }
     } catch (e) {
       console.error('Error reading before/after from storage:', e);
     }
-    return initialBeforeAfterData;
+    this.inMemoryBeforeAfter = [...initialBeforeAfterData];
+    return this.inMemoryBeforeAfter;
   }
 
   saveBeforeAfter(items: BeforeAfterItem[]) {
+    this.inMemoryBeforeAfter = [...items];
     try {
       localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(items));
-      notifyListeners();
-      this.scheduleRemoteSync();
     } catch (e) {
-      console.error('Error saving before/after:', e);
+      console.warn('LocalStorage quota limit reached for before/after; preserved in memory and queued for sync:', e);
     }
+    notifyListeners();
+    this.scheduleRemoteSync();
   }
 
   addBeforeAfter(item: Omit<BeforeAfterItem, 'id'>): BeforeAfterItem {
@@ -318,8 +332,10 @@ class AdminStore {
   }
 
   resetBeforeAfterToDefault() {
+    this.inMemoryBeforeAfter = [...initialBeforeAfterData];
     localStorage.removeItem(STORAGE_KEYS.BEFORE_AFTER);
     notifyListeners();
+    this.scheduleRemoteSync();
   }
 
   // === INQUIRIES ===
@@ -643,11 +659,13 @@ class AdminStore {
     beforeAfter?: BeforeAfterItem[];
   }) {
     if (data.designs && Array.isArray(data.designs) && data.designs.length > 0) {
+      this.inMemoryDesigns = data.designs;
       try {
         localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(data.designs));
       } catch {}
     }
     if (data.beforeAfter && Array.isArray(data.beforeAfter) && data.beforeAfter.length > 0) {
+      this.inMemoryBeforeAfter = data.beforeAfter;
       try {
         localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(data.beforeAfter));
       } catch {}
