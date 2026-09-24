@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T17:42:28.866Z",
+  "updatedAt": "2026-09-24T17:42:39.895Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -11,17 +11,17 @@
     "heroImage": "./projects/p1.jpg",
     "heroTagline": "شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء",
     "homepageDesignIds": [
-      "mg-k-01",
       "mg-k-03",
       "mg-k-04",
       "p33",
-      "p56"
+      "p56",
+      "p60"
     ],
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
     "autoSyncToGithub": true,
-    "lastSyncTime": "2026-09-24T17:42:12.343Z"
+    "lastSyncTime": "2026-09-24T17:42:39.167Z"
   },
   "designs": [
     {
@@ -67,7 +67,7 @@
       "views": 1840,
       "favoritesCount": 520,
       "dateAdded": "2026-08-20",
-      "isFeatured": true,
+      "isFeatured": false,
       "isMostViewed": true,
       "aspectRatio": "tall"
     },
@@ -5075,7 +5075,7 @@
       "views": 1820,
       "favoritesCount": 590,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": false,
       "aspectRatio": "tall"
     },
