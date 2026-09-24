@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T17:20:51.262Z",
+  "updatedAt": "2026-09-24T17:21:11.894Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -22,7 +22,7 @@
     "githubRepo": "almagdly/almagdly.github.io",
     "githubBranch": "main",
     "autoSyncToGithub": true,
-    "lastSyncTime": "2026-09-24T16:18:53.717Z"
+    "lastSyncTime": "2026-09-24T17:20:56.063Z"
   },
   "designs": [
     {
@@ -7991,30 +7991,6 @@
       "description": "تحويل المطبخ إلى تصميم فاخر يجمع بين الرمادي الداكن وخشب الجوز مع إضاءات بروفايل مدمجة.",
       "location": "البيضاء - شارع القهاوي",
       "duration": "3 أسابيع"
-    },
-    {
-      "id": "ba-02",
-      "titleArabic": "تطوير مساحة المطبخ وإضافة جزيرة بار عائلية",
-      "titleEn": "Kitchen Space Redesign with Dining Island",
-      "category": "kitchens",
-      "categoryArabic": "مطابخ حديثة",
-      "beforeImage": "./projects/p8.jpg",
-      "afterImage": "./projects/p13.jpg",
-      "description": "إعادة تصميم المطبخ ليشمل جزيرة وسطية فسيحة بكراسي بار خشبية وثريات معلقة لتناول الوجبات.",
-      "location": "البيضاء - حي الأندلس",
-      "duration": "أسبوعين"
-    },
-    {
-      "id": "ba-03",
-      "titleArabic": "تنفيذ مطبخ فاخر بجزيرة رخام شلال وتكسيات مضلعة",
-      "titleEn": "Luxury Black Marble Waterfall Kitchen Execution",
-      "category": "kitchens",
-      "categoryArabic": "مطابخ حديثة",
-      "beforeImage": "./projects/p24.jpg",
-      "afterImage": "./projects/p26.jpg",
-      "description": "تنفيذ احترافي لمطبخ مفتوح بجزيرة رخام أسود فاخر وتكسيات خشبية ريفلود وكراسي بار أنيقة.",
-      "location": "البيضاء - بالقرب من قرطاسية بغداد",
-      "duration": "18 يوماً"
     }
   ]
 }
