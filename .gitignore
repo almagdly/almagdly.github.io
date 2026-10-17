@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary / Academic files
+Reda_Mahmoud_*
+cameraman.png
+generate_submission.py

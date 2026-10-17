@@ -42,4 +42,10 @@ if (fs.existsSync(siteDataDist)) {
   fs.copyFileSync(siteDataDist, siteDataRoot);
 }
 
+const cnameDist = path.join(rootDir, 'dist', 'CNAME');
+const cnameRoot = path.join(rootDir, 'CNAME');
+if (fs.existsSync(cnameDist)) {
+  fs.copyFileSync(cnameDist, cnameRoot);
+}
+
 console.log('Build and multi-target sync completed successfully!');

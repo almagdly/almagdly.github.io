@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://almagdly.github.io/",
+  "homepage": "https://almagd.ly/",
   "scripts": {
     "dev": "vite",
     "build": "node scripts/build.js",
