@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Clock, WhatsappLogo, PaperPlaneTilt, CheckCircle } from '@phosphor-icons/react';
+import { MapPin, Phone, Clock, WhatsappLogo, PaperPlaneTilt, CheckCircle, IdentificationCard, ArrowSquareOut } from '@phosphor-icons/react';
 import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/whatsapp';
 import { adminStore } from '../services/adminStore';
 import { useSiteSettings } from '../hooks/useAdminStore';
@@ -129,6 +129,48 @@ export const ContactPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Official Business Card Showcase */}
+            <div className="p-5 rounded-2xl bg-brand-surface/50 border border-brand-gold/20 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-brand-gold/15 flex items-center justify-center text-brand-champagne">
+                    <IdentificationCard size={18} weight="duotone" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-bold text-brand-ivory">بطاقة العمل الرسمية</h3>
+                    <span className="text-[10px] text-brand-gold">كارت الشركة الرقمي وللطباعة</span>
+                  </div>
+                </div>
+                <a
+                  href="./business-card.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-gold hover:underline"
+                >
+                  <span>عرض وطباعة</span>
+                  <ArrowSquareOut size={13} />
+                </a>
+              </div>
+
+              <a
+                href="./business-card.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block relative rounded-xl overflow-hidden border border-brand-gold/30 group cursor-pointer"
+              >
+                <img
+                  src="./brand/business_card_mockup.jpg"
+                  alt="بطاقة شركة المجد للمطابخ الحديثة"
+                  className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-3">
+                  <span className="text-[11px] font-bold text-brand-champagne flex items-center gap-1.5">
+                    <ArrowSquareOut size={14} />
+                    <span>انقر لمعاينة وتحميل كارت الشركة المعتمد</span>
+                  </span>
+                </div>
+              </a>
+            </div>
 
           </div>
 

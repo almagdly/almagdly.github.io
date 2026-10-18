@@ -26,6 +26,9 @@ import {
   FacebookLogo,
   Clock,
   ShieldCheck,
+  IdentificationCard,
+  ArrowSquareOut,
+  DownloadSimple,
 } from '@phosphor-icons/react';
 import { DesignItem } from '../../../types';
 import { InquiryItem } from '../../../types/admin';
@@ -1061,6 +1064,81 @@ export const AdminOverviewTab: React.FC<Props> = ({
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Official Business Cards Showcase in Admin */}
+      <div className="p-6 rounded-2xl bg-brand-surface border border-brand-gold/25 shadow-lg space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-gold/15 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-brand-gold/15 text-brand-gold flex items-center justify-center">
+              <IdentificationCard size={20} weight="duotone" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-ivory">
+                بطاقات شركة المجد التعريفية (Business Cards)
+              </h3>
+              <p className="text-[11px] text-brand-ivory/60">
+                الهوية البصرية للبطاقة الشخصية للشركة، جاهزة للمعاينة، التنزيل بدقة فائقة، أو الطباعة
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="./business-card.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-brand-gold/20 text-brand-gold hover:bg-brand-gold/30 border border-brand-gold/35 transition-all shadow-sm"
+          >
+            <span>فتح صفحة المعاينة والطباعة</span>
+            <ArrowSquareOut size={15} />
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card Mockup 3D */}
+          <div className="p-4 rounded-xl bg-black/30 border border-brand-gold/15 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-brand-ivory">نموذج العرض ثلاثي الأبعاد (3D Mockup)</span>
+              <a
+                href="./brand/business_card_mockup.jpg"
+                download="almagd_business_card_mockup.jpg"
+                className="text-[11px] text-brand-gold hover:underline font-semibold flex items-center gap-1"
+              >
+                <DownloadSimple size={14} />
+                <span>تحميل الصورة</span>
+              </a>
+            </div>
+            <a href="./brand/business_card_mockup.jpg" target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-brand-gold/20 group">
+              <img
+                src="./brand/business_card_mockup.jpg"
+                alt="نموذج بطاقة شركة المجد 3D"
+                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </a>
+          </div>
+
+          {/* Card Flat Print Version */}
+          <div className="p-4 rounded-xl bg-black/30 border border-brand-gold/15 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-brand-ivory">تصميم الطباعة المسطح ذو الوجهين (Flat Print)</span>
+              <a
+                href="./brand/business_card_flat.jpg"
+                download="almagd_business_card_print.jpg"
+                className="text-[11px] text-brand-gold hover:underline font-semibold flex items-center gap-1"
+              >
+                <DownloadSimple size={14} />
+                <span>تحميل الصورة</span>
+              </a>
+            </div>
+            <a href="./brand/business_card_flat.jpg" target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-brand-gold/20 group">
+              <img
+                src="./brand/business_card_flat.jpg"
+                alt="تصميم بطاقة شركة المجد للطباعة"
+                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </a>
           </div>
         </div>
       </div>
