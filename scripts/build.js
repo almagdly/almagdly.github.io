@@ -36,6 +36,12 @@ if (fs.existsSync(projectsDist)) {
   fs.cpSync(projectsDist, projectsRoot, { recursive: true });
 }
 
+const brandDist = path.join(rootDir, 'dist', 'brand');
+const brandRoot = path.join(rootDir, 'brand');
+if (fs.existsSync(brandDist)) {
+  fs.cpSync(brandDist, brandRoot, { recursive: true });
+}
+
 const siteDataDist = path.join(rootDir, 'dist', 'site-data.json');
 const siteDataRoot = path.join(rootDir, 'site-data.json');
 if (fs.existsSync(siteDataDist)) {
@@ -49,7 +55,7 @@ if (fs.existsSync(cnameDist)) {
 }
 
 // Sync SEO and Favicon files to root
-const rootFilesToSync = ['robots.txt', 'sitemap.xml', 'favicon.ico', 'favicon.png', 'apple-touch-icon.png'];
+const rootFilesToSync = ['robots.txt', 'sitemap.xml', 'favicon.ico', 'favicon.png', 'favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png'];
 for (const file of rootFilesToSync) {
   const distFile = path.join(rootDir, 'dist', file);
   const rootFile = path.join(rootDir, file);

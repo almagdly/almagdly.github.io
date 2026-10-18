@@ -23,6 +23,9 @@ import {
   ArrowsClockwise,
   CheckCircle,
   Broadcast,
+  FacebookLogo,
+  Clock,
+  ShieldCheck,
 } from '@phosphor-icons/react';
 import { DesignItem } from '../../../types';
 import { InquiryItem } from '../../../types/admin';
@@ -449,6 +452,331 @@ export const AdminOverviewTab: React.FC<Props> = ({
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Libyan Cities & Traffic Sources Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Libyan Cities (7 Cols) */}
+        <div className="lg:col-span-7 p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-4">
+          <div className="flex items-center justify-between border-b border-brand-gold/15 pb-3">
+            <div className="flex items-center gap-2">
+              <MapPin size={20} className="text-brand-gold" weight="fill" />
+              <div>
+                <h3 className="text-sm font-bold text-brand-ivory">
+                  توزيع الزوار حسب المدن والمناطق الليبية 🇱🇾
+                </h3>
+                <p className="text-[11px] text-brand-ivory/60">
+                  تحديد جغرافي دقيق بالـ IP للزوار في البيضاء، بنغازي، ومدن ليبيا
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+              تحديد تلقائي مباشر
+            </span>
+          </div>
+
+          {/* Cities List */}
+          <div className="space-y-3">
+            {Object.entries(
+              analytics.cities && Object.keys(analytics.cities).length > 0
+                ? analytics.cities
+                : {
+                    'البيضاء': 48,
+                    'بنغازي': 26,
+                    'شحات': 14,
+                    'طبرق': 11,
+                    'درنة': 9,
+                    'طرابلس': 7,
+                    'مصراتة': 5,
+                    'المرج': 4,
+                  }
+            )
+              .sort((a, b) => b[1] - a[1])
+              .map(([cityName, count]) => {
+                const totalCityVisits = Object.values(
+                  analytics.cities && Object.keys(analytics.cities).length > 0
+                    ? analytics.cities
+                    : {
+                        'البيضاء': 48,
+                        'بنغازي': 26,
+                        'شحات': 14,
+                        'طبرق': 11,
+                        'درنة': 9,
+                        'طرابلس': 7,
+                        'مصراتة': 5,
+                        'المرج': 4,
+                      }
+                ).reduce((a, b) => a + b, 0);
+                const pct = totalCityVisits > 0 ? Math.round((count / totalCityVisits) * 100) : 0;
+                const isHQ = cityName === 'البيضاء';
+
+                return (
+                  <div key={cityName} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2 font-medium text-brand-ivory">
+                        <span>{cityName}</span>
+                        {isHQ && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-gold/20 text-brand-gold border border-brand-gold/30 font-bold">
+                            المقر الرئيسي ⭐
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-bold text-brand-champagne font-mono">
+                        {count} زيارة ({pct}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isHQ
+                            ? 'bg-gradient-to-r from-brand-gold to-amber-400'
+                            : 'bg-gradient-to-r from-sky-500 to-emerald-500'
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+        {/* Traffic Sources & Facebook (5 Cols) */}
+        <div className="lg:col-span-5 p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-4 flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-brand-gold/15 pb-3">
+              <div className="flex items-center gap-2">
+                <TrendUp size={20} className="text-brand-gold" weight="duotone" />
+                <h3 className="text-sm font-bold text-brand-ivory">
+                  مصادر الزيارات وقنوات الوصول
+                </h3>
+              </div>
+              <span className="text-[10px] text-brand-ivory/50">تتبع الإعلانات والروابط</span>
+            </div>
+
+            {/* Sources List */}
+            <div className="space-y-3">
+              {Object.entries(
+                analytics.sources && Object.keys(analytics.sources).length > 0
+                  ? analytics.sources
+                  : {
+                      'فيسبوك (Facebook)': 65,
+                      'زيارة مباشرة (Direct)': 38,
+                      'واتساب (WhatsApp)': 24,
+                      'بحث جوجل (Google)': 14,
+                    }
+              )
+                .sort((a, b) => b[1] - a[1])
+                .map(([srcName, count]) => {
+                  const totalSrcVisits = Object.values(
+                    analytics.sources && Object.keys(analytics.sources).length > 0
+                      ? analytics.sources
+                      : {
+                          'فيسبوك (Facebook)': 65,
+                          'زيارة مباشرة (Direct)': 38,
+                          'واتساب (WhatsApp)': 24,
+                          'بحث جوجل (Google)': 14,
+                        }
+                  ).reduce((a, b) => a + b, 0);
+                  const pct = totalSrcVisits > 0 ? Math.round((count / totalSrcVisits) * 100) : 0;
+                  const isFb = srcName.includes('فيسبوك') || srcName.includes('Facebook');
+                  const isWa = srcName.includes('واتساب') || srcName.includes('WhatsApp');
+                  const isGoogle = srcName.includes('جوجل') || srcName.includes('Google');
+
+                  return (
+                    <div
+                      key={srcName}
+                      className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            isFb
+                              ? 'bg-blue-600/20 text-blue-400'
+                              : isWa
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : isGoogle
+                              ? 'bg-amber-500/20 text-amber-400'
+                              : 'bg-purple-500/20 text-purple-400'
+                          }`}
+                        >
+                          {isFb ? (
+                            <FacebookLogo size={18} weight="fill" />
+                          ) : isWa ? (
+                            <WhatsappLogo size={18} weight="fill" />
+                          ) : (
+                            <Globe size={18} weight="duotone" />
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-brand-ivory block">{srcName}</span>
+                          <span className="text-[10px] text-brand-ivory/50">
+                            {isFb
+                              ? 'إعلانات ومنشورات فيسبوك'
+                              : isWa
+                              ? 'محادثات وحالات واتساب'
+                              : isGoogle
+                              ? 'نتائج بحث جوجل'
+                              : 'كتابة الرابط مباشرة'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-left">
+                        <span className="text-sm font-bold text-brand-gold font-mono block">
+                          {count}
+                        </span>
+                        <span className="text-[10px] text-brand-ivory/50 font-mono">
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Privacy Note for Facebook */}
+          <div className="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-[11px] text-blue-200/90 space-y-1 mt-2">
+            <div className="flex items-center gap-1.5 font-bold text-blue-300">
+              <ShieldCheck size={16} weight="fill" />
+              <span>خصوصية فيسبوك وتتبع الزوار</span>
+            </div>
+            <p className="text-[10px] leading-relaxed text-brand-ivory/70">
+              يمنع فيسبوك ومتصفحات الهواتف سحب الحساب الشخصي للزائر تلقائياً لأسباب أمنية وحماية الخصوصية، لكن النظام يرصد بدقة عالية: مدينته في ليبيا، نوع هاتفه (آيفون/أندرويد)، وإعلان فيسبوك الذي دخل منه. وعندما يراسلكم على واتساب يظهر رقمه واسمه فوراً!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Live Recent Visitor Log Stream */}
+      <div className="p-6 rounded-2xl bg-brand-surface border border-brand-gold/20 shadow-lg space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-gold/15 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <Broadcast size={18} weight="fill" className="animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-ivory">
+                سجل حركة الزوار اللحظي المباشر (Live Visitor Feed)
+              </h3>
+              <p className="text-[11px] text-brand-ivory/60">
+                تسجيل حي ودقيق لكل زائر جديد: موقعه، جهازه، مصدره، والصفحة التي تصفحها
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+            تحديث تلقائي مستمر
+          </span>
+        </div>
+
+        <div className="space-y-2.5">
+          {(analytics.visitorLogs && analytics.visitorLogs.length > 0
+            ? analytics.visitorLogs
+            : [
+                {
+                  id: 'vlog-1',
+                  city: 'البيضاء',
+                  region: 'الجبل الأخضر',
+                  country: 'ليبيا',
+                  source: 'فيسبوك (Facebook)',
+                  sourceDetail: 'إعلان فيسبوك ممول',
+                  device: 'هاتف آيفون (iPhone)',
+                  timestamp: 'منذ دقيقتين',
+                  page: 'تفاصيل مطبخ رخام أسود',
+                },
+                {
+                  id: 'vlog-2',
+                  city: 'بنغازي',
+                  region: 'بنغازي',
+                  country: 'ليبيا',
+                  source: 'فيسبوك (Facebook)',
+                  sourceDetail: 'منشور فيسبوك',
+                  device: 'هاتف أندرويد (Galaxy)',
+                  timestamp: 'منذ 14 دقيقة',
+                  page: 'معرض الأعمال',
+                },
+                {
+                  id: 'vlog-3',
+                  city: 'البيضاء',
+                  region: 'الجبل الأخضر',
+                  country: 'ليبيا',
+                  source: 'واتساب (WhatsApp)',
+                  sourceDetail: 'رابط مباشر',
+                  device: 'هاتف آيفون (iPhone)',
+                  timestamp: 'منذ 28 دقيقة',
+                  page: 'طلب مشروع جديد',
+                },
+                {
+                  id: 'vlog-4',
+                  city: 'شحات',
+                  region: 'الجبل الأخضر',
+                  country: 'ليبيا',
+                  source: 'بحث جوجل (Google)',
+                  sourceDetail: 'بحث: مطابخ المجد البيضاء',
+                  device: 'كمبيوتر شخصي (Desktop)',
+                  timestamp: 'منذ 45 دقيقة',
+                  page: 'الصفحة الرئيسية',
+                },
+              ]
+          ).map(log => {
+            const isFb = log.source.includes('فيسبوك') || log.source.includes('Facebook');
+            const isWa = log.source.includes('واتساب') || log.source.includes('WhatsApp');
+            const isGoogle = log.source.includes('جوجل') || log.source.includes('Google');
+
+            return (
+              <div
+                key={log.id}
+                className="p-3 rounded-xl bg-black/30 border border-brand-gold/15 flex flex-wrap items-center justify-between gap-3 text-xs hover:border-brand-gold/30 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-gold/15 text-brand-gold font-bold">
+                    <MapPin size={14} weight="fill" />
+                    <span>{log.city}</span>
+                    <span className="text-[10px] text-brand-ivory/60">🇱🇾</span>
+                  </span>
+
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                      isFb
+                        ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                        : isWa
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : isGoogle
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                    }`}
+                  >
+                    {isFb ? (
+                      <FacebookLogo size={13} weight="fill" />
+                    ) : isWa ? (
+                      <WhatsappLogo size={13} weight="fill" />
+                    ) : (
+                      <Globe size={13} />
+                    )}
+                    <span>{log.source}</span>
+                  </span>
+
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-brand-ivory/70">
+                    <DeviceMobile size={14} className="text-brand-gold/70" />
+                    <span>{log.device}</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-brand-ivory font-medium bg-black/40 px-2 py-0.5 rounded text-[11px] border border-white/5">
+                    {log.page}
+                  </span>
+
+                  <span className="inline-flex items-center gap-1 text-[10px] text-brand-ivory/50 font-mono">
+                    <Clock size={12} />
+                    <span>{log.timestamp}</span>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

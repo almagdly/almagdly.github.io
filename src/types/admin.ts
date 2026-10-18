@@ -42,6 +42,19 @@ export interface SiteAnalytics {
     desktop: number;
     tablet: number;
   };
+  cities?: Record<string, number>;
+  sources?: Record<string, number>;
+  visitorLogs?: Array<{
+    id: string;
+    city: string;
+    region?: string;
+    country: string;
+    source: string;
+    sourceDetail?: string;
+    device: string;
+    timestamp: string;
+    page: string;
+  }>;
   activeVisitors?: number;
   githubViewsCount?: number;
   githubUniquesCount?: number;

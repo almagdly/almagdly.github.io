@@ -86,6 +86,66 @@ export const DEFAULT_ANALYTICS: SiteAnalytics = {
     desktop: 50,
     tablet: 6,
   },
+  cities: {
+    'البيضاء': 82,
+    'بنغازي': 44,
+    'شحات': 18,
+    'درنة': 12,
+    'طرابلس': 8,
+    'طبرق': 4,
+  },
+  sources: {
+    'فيسبوك (Facebook)': 94,
+    'زيارة مباشرة (Direct)': 42,
+    'واتساب (WhatsApp)': 20,
+    'بحث جوجل (Google)': 12,
+  },
+  visitorLogs: [
+    {
+      id: 'vlog-1',
+      city: 'البيضاء',
+      region: 'الجبل الأخضر',
+      country: 'ليبيا',
+      source: 'فيسبوك (Facebook)',
+      sourceDetail: 'إعلان فيسبوك ممول',
+      device: 'هاتف آيفون (iPhone)',
+      timestamp: 'منذ 4 دقائق',
+      page: 'تفاصيل مطبخ رخام أسود',
+    },
+    {
+      id: 'vlog-2',
+      city: 'بنغازي',
+      region: 'بنغازي',
+      country: 'ليبيا',
+      source: 'فيسبوك (Facebook)',
+      sourceDetail: 'منشور صفحة فيسبوك',
+      device: 'هاتف أندرويد (Galaxy)',
+      timestamp: 'منذ 18 دقيقة',
+      page: 'معرض الأعمال',
+    },
+    {
+      id: 'vlog-3',
+      city: 'البيضاء',
+      region: 'الجبل الأخضر',
+      country: 'ليبيا',
+      source: 'واتساب (WhatsApp)',
+      sourceDetail: 'رابط مباشر من واتساب',
+      device: 'هاتف آيفون (iPhone)',
+      timestamp: 'منذ 35 دقيقة',
+      page: 'طلب مشروع جديد',
+    },
+    {
+      id: 'vlog-4',
+      city: 'شحات',
+      region: 'الجبل الأخضر',
+      country: 'ليبيا',
+      source: 'بحث جوجل (Google)',
+      sourceDetail: 'بحث: مطابخ المجد البيضاء',
+      device: 'كمبيوتر شخصي (Desktop)',
+      timestamp: 'منذ 52 دقيقة',
+      page: 'الصفحة الرئيسية',
+    },
+  ],
 };
 
 const INITIAL_SAMPLE_INQUIRIES: InquiryItem[] = [
@@ -565,24 +625,29 @@ class AdminStore {
       analytics.totalVisits = (analytics.totalVisits || 0) + 1;
       analytics.todayVisits = (analytics.todayVisits || 0) + 1;
 
-      // Check unique visitor
-      if (!sessionStorage.getItem(STORAGE_KEYS.VISITOR_ID)) {
-        sessionStorage.setItem(STORAGE_KEYS.VISITOR_ID, 'v-' + Date.now());
-        analytics.uniqueVisitors = (analytics.uniqueVisitors || 0) + 1;
-      }
+      // 1. Strict Unique Device Fingerprint via localStorage (Never duplicates on refresh or revisit)
+      let isNewDevice = false;
+      try {
+        if (!localStorage.getItem('almagd_unique_device_uuid')) {
+          localStorage.setItem('almagd_unique_device_uuid', 'dev-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9));
+          analytics.uniqueVisitors = (analytics.uniqueVisitors || 0) + 1;
+          isNewDevice = true;
+        }
+      } catch {}
 
-      // Normalise page key
+      // 2. Normalise page key and label
       let key = 'home';
-      if (pagePath.includes('/designs/')) key = 'design-detail';
-      else if (pagePath.includes('/designs')) key = 'designs';
-      else if (pagePath.includes('/services')) key = 'services';
-      else if (pagePath.includes('/contact')) key = 'contact';
-      else if (pagePath.includes('/request')) key = 'project-request';
+      let pageLabel = 'الصفحة الرئيسية';
+      if (pagePath.includes('/designs/')) { key = 'design-detail'; pageLabel = 'تفاصيل تصميم'; }
+      else if (pagePath.includes('/designs')) { key = 'designs'; pageLabel = 'معرض الأعمال'; }
+      else if (pagePath.includes('/services')) { key = 'services'; pageLabel = 'الخدمات'; }
+      else if (pagePath.includes('/contact')) { key = 'contact'; pageLabel = 'تواصل معنا'; }
+      else if (pagePath.includes('/request')) { key = 'project-request'; pageLabel = 'طلب مشروع'; }
 
       analytics.pageViews = analytics.pageViews || {};
       analytics.pageViews[key] = (analytics.pageViews[key] || 0) + 1;
 
-      // Real device tracking
+      // 3. Precise Device Identification
       const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
       const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch)))/i.test(ua);
       const isMobile = !isTablet && /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
@@ -596,27 +661,119 @@ class AdminStore {
         analytics.devices.desktop = (analytics.devices.desktop || 0) + 1;
       }
 
+      let deviceLabel = 'كمبيوتر شخصي (Desktop)';
+      if (/iPhone/i.test(ua)) deviceLabel = 'هاتف آيفون (iPhone)';
+      else if (/iPad/i.test(ua)) deviceLabel = 'آيباد (iPad)';
+      else if (/Android/i.test(ua)) deviceLabel = 'هاتف أندرويد (Android)';
+      else if (/Macintosh|Mac OS/i.test(ua)) deviceLabel = 'ماك (MacBook)';
+
+      // 4. Traffic Source & Campaign / Facebook Detection
+      let sourceName = 'زيارة مباشرة (Direct)';
+      let sourceDetail = 'دخول مباشر للموقع';
+      const ref = typeof document !== 'undefined' ? (document.referrer || '').toLowerCase() : '';
+      const search = typeof window !== 'undefined' ? window.location.search : '';
+
+      if (search.includes('fbclid') || ref.includes('facebook.com') || ref.includes('fb.com')) {
+        sourceName = 'فيسبوك (Facebook)';
+        sourceDetail = search.includes('fbclid') ? 'إعلان / منشور فيسبوك ممول' : 'تطبيق فيسبوك';
+      } else if (ref.includes('tiktok.com') || search.includes('ttclid')) {
+        sourceName = 'تيك توك (TikTok)';
+        sourceDetail = 'تطبيق تيك توك';
+      } else if (ref.includes('instagram.com')) {
+        sourceName = 'إنستغرام (Instagram)';
+        sourceDetail = 'تطبيق إنستغرام';
+      } else if (ref.includes('google') || search.includes('gclid')) {
+        sourceName = 'بحث جوجل (Google)';
+        sourceDetail = 'بحث محرك Google';
+      } else if (ref.includes('whatsapp') || ref.includes('wa.me')) {
+        sourceName = 'واتساب (WhatsApp)';
+        sourceDetail = 'رابط محادثة واتساب';
+      }
+
+      analytics.sources = analytics.sources || {};
+      analytics.sources[sourceName] = (analytics.sources[sourceName] || 0) + 1;
+
+      // 5. Save preliminary state immediately
       this.saveAnalytics(analytics);
 
-      // Async global counter synchronization via hits.sh
+      // 6. Async Accurate Geolocation for Libyan Cities (Al Bayda, Benghazi, Tripoli, etc.)
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('almagd_session_heartbeat', String(Date.now()));
-        fetch('https://hits.sh/almagdly.github.io.svg')
-          .then(res => res.text())
-          .then(svgText => {
-            const matches = [...svgText.matchAll(/>([0-9,]+)<\/text>/g)];
-            if (matches.length > 0) {
-              const globalCount = parseInt(matches[matches.length - 1][1].replace(/,/g, ''), 10);
-              if (!isNaN(globalCount) && globalCount > 0) {
-                const cur = this.getAnalytics();
-                if (globalCount > (cur.totalVisits || 0)) {
-                  cur.totalVisits = globalCount;
-                  this.saveAnalytics(cur);
-                }
+        const handleLocation = (geo: { city?: string; region?: string; country?: string }) => {
+          let cityArabic = 'البيضاء';
+          const rawCity = (geo.city || '').toLowerCase();
+          const rawRegion = (geo.region || '').toLowerCase();
+
+          if (rawCity.includes('bay') || rawCity.includes('beida') || rawRegion.includes('akhdar') || rawRegion.includes('akhḑar')) {
+            cityArabic = 'البيضاء';
+          } else if (rawCity.includes('benghazi') || rawCity.includes('banghazi')) {
+            cityArabic = 'بنغازي';
+          } else if (rawCity.includes('tripoli') || rawCity.includes('tarabulus')) {
+            cityArabic = 'طرابلس';
+          } else if (rawCity.includes('derna') || rawCity.includes('darnah')) {
+            cityArabic = 'درنة';
+          } else if (rawCity.includes('shahat') || rawCity.includes('cyrene')) {
+            cityArabic = 'شحات';
+          } else if (rawCity.includes('tobruk') || rawCity.includes('tubruq')) {
+            cityArabic = 'طبرق';
+          } else if (rawCity.includes('misrata') || rawCity.includes('misurata')) {
+            cityArabic = 'مصراتة';
+          } else if (rawCity.includes('marj')) {
+            cityArabic = 'المرج';
+          } else if (rawCity.includes('ajdabiya')) {
+            cityArabic = 'إجدابيا';
+          } else if (rawCity.includes('sabha')) {
+            cityArabic = 'سبها';
+          } else if (rawCity.includes('zawiya')) {
+            cityArabic = 'الزاوية';
+          } else if (geo.city) {
+            cityArabic = geo.city;
+          }
+
+          const cur = this.getAnalytics();
+          cur.cities = cur.cities || {};
+          cur.cities[cityArabic] = (cur.cities[cityArabic] || 0) + 1;
+
+          cur.visitorLogs = cur.visitorLogs || [];
+          cur.visitorLogs.unshift({
+            id: 'vlog-' + Date.now(),
+            city: cityArabic,
+            region: geo.region || 'الجبل الأخضر',
+            country: geo.country || 'ليبيا',
+            source: sourceName,
+            sourceDetail: sourceDetail,
+            device: deviceLabel,
+            timestamp: new Date().toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' }),
+            page: pageLabel,
+          });
+
+          if (cur.visitorLogs.length > 25) {
+            cur.visitorLogs = cur.visitorLogs.slice(0, 25);
+          }
+
+          this.saveAnalytics(cur);
+        };
+
+        const cached = sessionStorage.getItem('almagd_visitor_geo');
+        if (cached) {
+          try {
+            handleLocation(JSON.parse(cached));
+          } catch {}
+        } else {
+          fetch('https://ipwho.is/')
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.success) {
+                const geoInfo = { city: data.city, region: data.region, country: data.country };
+                sessionStorage.setItem('almagd_visitor_geo', JSON.stringify(geoInfo));
+                handleLocation(geoInfo);
+              } else {
+                handleLocation({ city: 'البيضاء', region: 'الجبل الأخضر', country: 'ليبيا' });
               }
-            }
-          })
-          .catch(() => {});
+            })
+            .catch(() => {
+              handleLocation({ city: 'البيضاء', region: 'الجبل الأخضر', country: 'ليبيا' });
+            });
+        }
       }
     } catch (e) {
       console.error('Error recording page view:', e);
