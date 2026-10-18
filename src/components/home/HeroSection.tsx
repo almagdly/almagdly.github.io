@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { WhatsappLogo, ArrowLeft, Sparkle } from '@phosphor-icons/react';
-import { getWhatsAppUrl } from '../../utils/whatsapp';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/whatsapp';
 import { getProjectImage } from '../../utils/assetHelper';
 import { useSiteSettings } from '../../hooks/useAdminStore';
 
@@ -76,6 +76,7 @@ export const HeroSection: React.FC = () => {
             href={whatsAppUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackWhatsAppClick}
             className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#25D366] text-white font-extrabold text-sm sm:text-base shadow-luxury hover:bg-[#20bd5a] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 whitespace-nowrap"
           >
             <WhatsappLogo size={20} weight="fill" />

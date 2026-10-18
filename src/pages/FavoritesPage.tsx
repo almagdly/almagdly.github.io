@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
-import { getWhatsAppUrl, getBatchFavoritesMessage } from '../utils/whatsapp';
+import { getWhatsAppUrl, getBatchFavoritesMessage, trackWhatsAppClick } from '../utils/whatsapp';
 import { 
   Heart, 
   Trash, 
@@ -30,6 +30,7 @@ export const FavoritesPage: React.FC = () => {
     : favoriteItems;
 
   const handleSendToWhatsApp = () => {
+    trackWhatsAppClick();
     const message = getBatchFavoritesMessage(itemsToSend);
     window.open(getWhatsAppUrl(message), '_blank');
   };

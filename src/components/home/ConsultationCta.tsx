@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { WhatsappLogo, ArrowLeft, PhoneCall, Sparkle } from '@phosphor-icons/react';
-import { getWhatsAppUrl } from '../../utils/whatsapp';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../../utils/whatsapp';
 
 export const ConsultationCta: React.FC = () => {
   return (
@@ -30,6 +30,7 @@ export const ConsultationCta: React.FC = () => {
             href={getWhatsAppUrl('السلام عليكم، أود حجز موعد استشارة تصميم داخلي ومطابخ لدى شركة المجد.')}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackWhatsAppClick}
             className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/40 text-[#25D366] transition-all flex items-center justify-center gap-2 whitespace-nowrap"
           >
             <WhatsappLogo size={18} weight="fill" />

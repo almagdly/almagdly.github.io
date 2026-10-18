@@ -2,7 +2,7 @@ import React from 'react';
 import { servicesData } from '../data/servicesData';
 import { CheckCircle, ArrowLeft, WhatsappLogo } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
-import { getWhatsAppUrl } from '../utils/whatsapp';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/whatsapp';
 
 export const ServicesPage: React.FC = () => {
   return (
@@ -93,6 +93,7 @@ export const ServicesPage: React.FC = () => {
                       href={getWhatsAppUrl(`السلام عليكم، أود الاستفسار عن خدمة "${service.titleArabic}" لدى شركة المجد.`)}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={trackWhatsAppClick}
                       className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/40 text-[#25D366] text-xs font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
                     >
                       <WhatsappLogo size={15} weight="fill" />

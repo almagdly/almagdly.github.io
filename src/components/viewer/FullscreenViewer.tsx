@@ -14,7 +14,7 @@ import {
 } from '@phosphor-icons/react';
 import { DesignItem } from '../../types';
 import { useFavorites } from '../../context/FavoritesContext';
-import { getWhatsAppUrl, getDesignInquiryMessage } from '../../utils/whatsapp';
+import { getWhatsAppUrl, getDesignInquiryMessage, trackWhatsAppClick } from '../../utils/whatsapp';
 import { ShareModal } from './ShareModal';
 
 interface FullscreenViewerProps {
@@ -405,6 +405,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
             href={whatsAppUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackWhatsAppClick}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs sm:text-sm font-extrabold bg-[#25D366] text-white shadow-luxury hover:bg-[#20bd5a] hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
           >
             <WhatsappLogo size={18} weight="fill" />

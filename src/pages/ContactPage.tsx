@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Clock, WhatsappLogo, PaperPlaneTilt, CheckCircle } from '@phosphor-icons/react';
-import { getWhatsAppUrl } from '../utils/whatsapp';
+import { getWhatsAppUrl, trackWhatsAppClick } from '../utils/whatsapp';
 import { adminStore } from '../services/adminStore';
 import { useSiteSettings } from '../hooks/useAdminStore';
 
@@ -83,6 +83,7 @@ export const ContactPage: React.FC = () => {
                   href={getWhatsAppUrl('السلام عليكم شركة المجد للمطابخ الحديثة و PVC')}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={trackWhatsAppClick}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] text-xs font-bold hover:bg-[#25D366]/30 transition-all w-full"
                 >
                   <WhatsappLogo size={18} weight="fill" />
@@ -188,10 +189,24 @@ export const ContactPage: React.FC = () => {
                 </button>
               </form>
             ) : (
-              <div className="py-8 text-center space-y-3">
+              <div className="py-8 text-center space-y-4">
                 <CheckCircle size={36} weight="fill" className="text-emerald-400 mx-auto" />
                 <h4 className="text-base font-bold text-brand-ivory">تم إرسال رسالتك بنجاح</h4>
-                <p className="text-xs text-brand-ivory/70">شكراً لتواصلك مع شركة المجد بالبيضاء، سنقوم بالرد عليك في أقرب وقت.</p>
+                <p className="text-xs text-brand-ivory/70 max-w-sm mx-auto leading-relaxed">
+                  شكراً لتواصلك مع شركة المجد بالبيضاء. يمكنك أيضاً إرسال الرسالة مباشرة عبر واتساب للرد الفوري:
+                </p>
+                <div>
+                  <a
+                    href={getWhatsAppUrl(`رسالة تواصل جديدة عبر الموقع:\nالاسم: ${name}\nرقم الهاتف: ${phone}\nالرسالة: ${message}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={trackWhatsAppClick}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] text-white text-xs font-bold hover:bg-[#20bd5a] transition-all shadow-md"
+                  >
+                    <WhatsappLogo size={18} weight="fill" />
+                    <span>إرسال الرسالة إلى واتساب للإجابة الفورية</span>
+                  </a>
+                </div>
               </div>
             )}
           </div>

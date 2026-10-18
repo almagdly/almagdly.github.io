@@ -7,6 +7,7 @@ import { FilterBar } from '../components/gallery/FilterBar';
 import { MobileFilterDrawer } from '../components/gallery/MobileFilterDrawer';
 import { FullscreenViewer } from '../components/viewer/FullscreenViewer';
 import { ImageSquare, WhatsappLogo, Sparkle } from '@phosphor-icons/react';
+import { trackWhatsAppClick } from '../utils/whatsapp';
 
 export const DesignsPage: React.FC = () => {
   const designsData = useAdminDesigns();
@@ -172,6 +173,7 @@ export const DesignsPage: React.FC = () => {
                   href={`https://wa.me/218945919679?text=${encodeURIComponent('السلام عليكم شركة المجد، أود الاستفسار وطلب كتالوج وتصاميم شركة المجد')}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={trackWhatsAppClick}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-bold text-xs shadow-luxury hover:bg-[#20bd5a] transition-all"
                 >
                   <WhatsappLogo size={18} weight="fill" />

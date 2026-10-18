@@ -48,4 +48,14 @@ if (fs.existsSync(cnameDist)) {
   fs.copyFileSync(cnameDist, cnameRoot);
 }
 
+// Sync SEO and Favicon files to root
+const rootFilesToSync = ['robots.txt', 'sitemap.xml', 'favicon.ico', 'favicon.png', 'apple-touch-icon.png'];
+for (const file of rootFilesToSync) {
+  const distFile = path.join(rootDir, 'dist', file);
+  const rootFile = path.join(rootDir, file);
+  if (fs.existsSync(distFile)) {
+    fs.copyFileSync(distFile, rootFile);
+  }
+}
+
 console.log('Build and multi-target sync completed successfully!');

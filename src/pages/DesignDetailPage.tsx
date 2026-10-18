@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAdminDesigns } from '../hooks/useAdminStore';
 import { adminStore } from '../services/adminStore';
 import { useFavorites } from '../context/FavoritesContext';
-import { getWhatsAppUrl, getDesignInquiryMessage } from '../utils/whatsapp';
+import { getWhatsAppUrl, getDesignInquiryMessage, trackWhatsAppClick } from '../utils/whatsapp';
 import { SimilarDesigns } from '../components/gallery/SimilarDesigns';
 import { FullscreenViewer } from '../components/viewer/FullscreenViewer';
 import { ShareModal } from '../components/viewer/ShareModal';
@@ -267,6 +267,7 @@ export const DesignDetailPage: React.FC = () => {
               href={whatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={trackWhatsAppClick}
               className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-[#25D366] text-white font-extrabold text-sm sm:text-base shadow-luxury hover:bg-[#20bd5a] hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <WhatsappLogo size={22} weight="fill" />

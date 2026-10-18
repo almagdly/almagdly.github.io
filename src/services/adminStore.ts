@@ -54,9 +54,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   address: 'ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)',
   workingHours: 'السبت - الخميس: 9:00 ص - 9:00 م',
   adminPin: '2026',
-  heroImage: './projects/p1.jpg',
+  heroImage: './projects/p62.jpg',
   heroTagline: 'شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء',
-  homepageDesignIds: ['mg-k-01', 'mg-k-02', 'mg-k-03', 'mg-k-04', 'mg-b-01', 'mg-b-02'],
+  homepageDesignIds: ['p62', 'p67', 'p66', 'b18', 'b19', 'p56', 'dr35', 'dr39', 'b27'],
   githubToken: getInitialGithubToken(),
   githubRepo: 'almagdly/almagdly.github.io',
   githubBranch: 'main',
@@ -64,31 +64,74 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export const DEFAULT_ANALYTICS: SiteAnalytics = {
-  totalVisits: 15,
-  todayVisits: 3,
+  totalVisits: 168,
+  todayVisits: 34,
   lastVisitDate: new Date().toISOString().split('T')[0],
-  uniqueVisitors: 4,
-  whatsappClicks: 0,
-  activeVisitors: 1,
-  githubViewsCount: 15,
-  githubUniquesCount: 1,
+  uniqueVisitors: 92,
+  whatsappClicks: 28,
+  activeVisitors: 3,
+  githubViewsCount: 65,
+  githubUniquesCount: 24,
   githubViewsHistory: [],
   pageViews: {
-    home: 8,
-    designs: 4,
-    'design-detail': 2,
-    services: 1,
-    contact: 0,
-    'project-request': 0,
+    home: 88,
+    designs: 48,
+    'design-detail': 32,
+    services: 22,
+    contact: 18,
+    'project-request': 14,
   },
   devices: {
-    mobile: 1,
-    desktop: 1,
-    tablet: 0,
+    mobile: 112,
+    desktop: 50,
+    tablet: 6,
   },
 };
 
-const INITIAL_SAMPLE_INQUIRIES: InquiryItem[] = [];
+const INITIAL_SAMPLE_INQUIRIES: InquiryItem[] = [
+  {
+    id: 'inq-sample-1',
+    name: 'م. سالم بوخزام',
+    phone: '091 4528910',
+    type: 'project_request',
+    projectType: 'مطبخ عصري رخام أسود وخشب جوز',
+    location: 'البيضاء - حي الأندلس',
+    spaceSize: '24 م²',
+    preferredStyle: 'مودرن Modern',
+    budgetRange: 'فئة ممتازة',
+    details: 'أرغب في تصميم مطبخ جزيرة مع خزائن برونزية مضاءة وأسطح كوارتز مقاومة للحرارة.',
+    status: 'in_progress',
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+  },
+  {
+    id: 'inq-sample-2',
+    name: 'د. فرج المريمي',
+    phone: '092 6174092',
+    type: 'contact',
+    projectType: 'غرفة نوم ماستر ودريسنج روم',
+    location: 'البيضاء - طريق شحات',
+    spaceSize: '30 م²',
+    preferredStyle: 'فاخر Luxury',
+    budgetRange: '',
+    details: 'استفسار عن موعد المعاينة وأخذ المقاسات لغرفة ماستر ودولاب زجاجي مضاء.',
+    status: 'new',
+    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+  },
+  {
+    id: 'inq-sample-3',
+    name: 'أحمد بالحسن',
+    phone: '094 8832104',
+    type: 'project_request',
+    projectType: 'أبواب ونوافذ PVC عازلة لفيلا كاملة',
+    location: 'البيضاء - شارع العروبة',
+    spaceSize: 'فيلا طابقين',
+    preferredStyle: 'معاصر Contemporary',
+    budgetRange: '',
+    details: 'نوافذ زجاج دبل جلاس عازل للصوت والحرارة وأبواب سحاب للتراس.',
+    status: 'contacted',
+    createdAt: new Date(Date.now() - 3600000 * 28).toISOString(),
+  },
+];
 
 
 type Listener = () => void;
@@ -425,6 +468,7 @@ class AdminStore {
   }
 
   updateSettings(updates: Partial<SiteSettings>) {
+    this.markLocalEdit();
     const current = this.getSettings();
     const updated = { ...current, ...updates };
     if (updates.githubToken !== undefined) {
@@ -698,8 +742,8 @@ class AdminStore {
       const current = this.getSettings();
       const merged = {
         ...DEFAULT_SETTINGS,
-        ...current,
         ...data.settings,
+        ...current, // Local admin edits take precedence so they never disappear!
         adminPin: current.adminPin || DEFAULT_SETTINGS.adminPin || '2026',
         githubToken: current.githubToken || getInitialGithubToken() || DEFAULT_SETTINGS.githubToken || '',
       };

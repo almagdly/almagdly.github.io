@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { PaperPlaneTilt, WhatsappLogo, CheckCircle, UploadSimple, ShieldCheck } from '@phosphor-icons/react';
-import { getWhatsAppUrl, getProjectFormWhatsAppMessage } from '../utils/whatsapp';
+import { getWhatsAppUrl, getProjectFormWhatsAppMessage, trackWhatsAppClick } from '../utils/whatsapp';
 import { adminStore } from '../services/adminStore';
 
 export const ProjectRequestPage: React.FC = () => {
@@ -280,6 +280,7 @@ export const ProjectRequestPage: React.FC = () => {
                   href={whatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={trackWhatsAppClick}
                   className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-[#25D366] text-white font-bold text-xs shadow-lg hover:bg-[#20bd5a] transition-all whitespace-nowrap"
                 >
                   <WhatsappLogo size={18} weight="fill" />

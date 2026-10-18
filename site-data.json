@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-09-24T16:22:00.020Z",
+  "updatedAt": "2026-10-18T15:41:34.159Z",
   "settings": {
     "phone": "094 5919679",
     "whatsapp": "218945919679",
@@ -8,15 +8,18 @@
     "tiktokUrl": "https://tiktok.com/@almajdone?_r=1&_t=ZS-99ataXUqlyk",
     "address": "ليبيا - البيضاء، شارع القهاوي (بالقرب من قرطاسية بغداد)",
     "workingHours": "السبت - الخميس: 9:00 ص - 9:00 م",
-    "heroImage": "./projects/p1.jpg",
+    "heroImage": "./projects/p62.jpg",
     "heroTagline": "شركة المجد للمطابخ الحديثة، غرف النوم، والديكورات الداخلية — البيضاء",
     "homepageDesignIds": [
-      "mg-k-01",
-      "mg-k-02",
-      "mg-k-03",
-      "mg-k-04",
-      "mg-b-01",
-      "mg-b-02"
+      "p62",
+      "p67",
+      "p66",
+      "b18",
+      "b19",
+      "p56",
+      "dr35",
+      "dr39",
+      "b27"
     ],
     "githubToken": "",
     "githubRepo": "almagdly/almagdly.github.io",
@@ -5352,7 +5355,7 @@
       "views": 1242,
       "favoritesCount": 404,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": false,
       "aspectRatio": "wide"
     },
@@ -5398,7 +5401,7 @@
       "views": 1279,
       "favoritesCount": 423,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": true,
       "aspectRatio": "tall"
     },
@@ -5628,7 +5631,7 @@
       "views": 1903,
       "favoritesCount": 411,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": false,
       "aspectRatio": "tall"
     },
@@ -7790,7 +7793,7 @@
       "views": 1695,
       "favoritesCount": 415,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": false,
       "aspectRatio": "tall"
     },
@@ -7974,7 +7977,7 @@
       "views": 1843,
       "favoritesCount": 491,
       "dateAdded": "2026-09-10",
-      "isFeatured": false,
+      "isFeatured": true,
       "isMostViewed": true,
       "aspectRatio": "tall"
     }
