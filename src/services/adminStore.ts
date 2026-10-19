@@ -870,37 +870,42 @@ class AdminStore {
     beforeAfter?: BeforeAfterItem[];
     updatedAt?: string;
   }) {
-    // Guard: never overwrite fresh local admin edits with older data from server
+    // Guard: never overwrite fresh local admin edits on this specific editing device
     if (data.updatedAt) {
       const remoteTime = new Date(data.updatedAt).getTime();
       const localTime = Math.max(
         this.lastLocalEditTime,
         typeof window !== 'undefined' ? Number(localStorage.getItem('almagd_last_local_edit') || '0') : 0
       );
-      if (localTime > 0 && remoteTime > 0 && remoteTime < localTime) {
+      // Only protect if THIS device made local edits within the last 5 minutes AND those edits are strictly newer than the server
+      const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+      if (localTime > fiveMinutesAgo && remoteTime > 0 && remoteTime < localTime) {
         console.log('Skipping remote data hydration: local admin edits are newer than remote timestamp');
         return;
       }
     }
 
-    if (data.designs && Array.isArray(data.designs) && data.designs.length > 0) {
+    if (data.designs && Array.isArray(data.designs)) {
       this.inMemoryDesigns = data.designs;
       try {
         localStorage.setItem(STORAGE_KEYS.DESIGNS, JSON.stringify(data.designs));
       } catch {}
     }
-    if (data.beforeAfter && Array.isArray(data.beforeAfter) && data.beforeAfter.length > 0) {
+
+    if (data.beforeAfter && Array.isArray(data.beforeAfter)) {
       this.inMemoryBeforeAfter = data.beforeAfter;
       try {
         localStorage.setItem(STORAGE_KEYS.BEFORE_AFTER, JSON.stringify(data.beforeAfter));
       } catch {}
     }
+
     if (data.settings && typeof data.settings === 'object') {
       const current = this.getSettings();
-      const merged = {
+      // Server published settings take precedence so updates reach all devices instantly!
+      const merged: SiteSettings = {
         ...DEFAULT_SETTINGS,
+        ...current,
         ...data.settings,
-        ...current, // Local admin edits take precedence so they never disappear!
         adminPin: current.adminPin || DEFAULT_SETTINGS.adminPin || '2026',
         githubToken: current.githubToken || getInitialGithubToken() || DEFAULT_SETTINGS.githubToken || '',
       };
@@ -908,23 +913,31 @@ class AdminStore {
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(merged));
       } catch {}
     }
+
+    if (data.updatedAt) {
+      try {
+        localStorage.setItem('almagd_last_synced_updated_at', data.updatedAt);
+      } catch {}
+    }
+
     notifyListeners();
   }
 
   async fetchRemotePublishedData() {
     try {
+      // Prioritize raw.githubusercontent.com because it reflects commits instantly without CDN or build lag
       const urls = [
+        `https://raw.githubusercontent.com/almagdly/almagdly.github.io/main/site-data.json?t=${Date.now()}`,
+        `https://raw.githubusercontent.com/almagdly/almagdly.github.io/main/docs/site-data.json?t=${Date.now()}`,
         `./site-data.json?t=${Date.now()}`,
         `./docs/site-data.json?t=${Date.now()}`,
-        `https://raw.githubusercontent.com/almagdly/almagdly.github.io/main/docs/site-data.json?t=${Date.now()}`,
-        `https://raw.githubusercontent.com/almagdly/almagdly.github.io/main/site-data.json?t=${Date.now()}`,
       ];
       for (const u of urls) {
         try {
           const res = await fetch(u, { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
-            if (data && data.designs && Array.isArray(data.designs)) {
+            if (data && (Array.isArray(data.designs) || Array.isArray(data.beforeAfter) || data.settings)) {
               this.applyPublishedData(data);
               return true;
             }

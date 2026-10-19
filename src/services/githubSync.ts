@@ -123,8 +123,8 @@ class GitHubSyncService {
         options?.commitMessage ||
         `chore: update site content from Admin Dashboard [${new Date().toLocaleDateString('ar-LY')}]`;
 
-      // Update both docs/site-data.json and site-data.json
-      const targetPaths = ['docs/site-data.json', 'site-data.json'];
+      // Update site-data.json (root primary) and docs/site-data.json
+      const targetPaths = ['site-data.json', 'docs/site-data.json'];
       let lastCommitUrl = '';
 
       for (const filePath of targetPaths) {

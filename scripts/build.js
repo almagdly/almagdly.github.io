@@ -7,6 +7,13 @@ const rootDir = process.cwd();
 console.log('1. Restoring index.html from index.dev.html...');
 fs.copyFileSync(path.join(rootDir, 'index.dev.html'), path.join(rootDir, 'index.html'));
 
+console.log('1.5. Syncing root site-data.json to public/ before Vite build...');
+const rootSiteData = path.join(rootDir, 'site-data.json');
+const publicSiteData = path.join(rootDir, 'public', 'site-data.json');
+if (fs.existsSync(rootSiteData)) {
+  fs.copyFileSync(rootSiteData, publicSiteData);
+}
+
 console.log('2. Running TypeScript check and Vite build from source...');
 execSync('npx tsc -b && npx vite build', { stdio: 'inherit' });
 

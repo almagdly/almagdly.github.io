@@ -35,9 +35,26 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  // Fetch latest published data from repo for all visitors
+  // Fetch latest published data from repo for all visitors (on mount, window focus, and periodically)
   React.useEffect(() => {
     adminStore.fetchRemotePublishedData();
+
+    const handleSync = () => {
+      adminStore.fetchRemotePublishedData();
+    };
+
+    const interval = setInterval(() => {
+      adminStore.fetchRemotePublishedData();
+    }, 60000);
+
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
+    };
   }, []);
 
   // Real-time visitor analytics tracking
