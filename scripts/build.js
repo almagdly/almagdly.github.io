@@ -61,8 +61,8 @@ if (fs.existsSync(cnameDist)) {
   fs.copyFileSync(cnameDist, cnameRoot);
 }
 
-// Sync SEO, Favicon, and Business Card files to root
-const rootFilesToSync = ['robots.txt', 'sitemap.xml', 'favicon.ico', 'favicon.png', 'favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png', 'business-card.html'];
+// Sync SEO, Favicon, Business Card, and .nojekyll files to root
+const rootFilesToSync = ['robots.txt', 'sitemap.xml', 'favicon.ico', 'favicon.png', 'favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png', 'business-card.html', '.nojekyll'];
 for (const file of rootFilesToSync) {
   const distFile = path.join(rootDir, 'dist', file);
   const rootFile = path.join(rootDir, file);
