@@ -49,6 +49,12 @@ if (fs.existsSync(brandDist)) {
   fs.cpSync(brandDist, brandRoot, { recursive: true });
 }
 
+const uploadsDist = path.join(rootDir, 'dist', 'uploads');
+const uploadsRoot = path.join(rootDir, 'uploads');
+if (fs.existsSync(uploadsDist)) {
+  fs.cpSync(uploadsDist, uploadsRoot, { recursive: true });
+}
+
 const siteDataDist = path.join(rootDir, 'dist', 'site-data.json');
 const siteDataRoot = path.join(rootDir, 'site-data.json');
 if (fs.existsSync(siteDataDist)) {
