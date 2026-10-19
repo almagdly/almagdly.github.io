@@ -22,10 +22,10 @@ fs.copyFileSync(path.join(rootDir, 'dist', 'index.html'), path.join(rootDir, 'di
 
 console.log('4. Syncing docs/ folder for GitHub Pages...');
 const docsDir = path.join(rootDir, 'docs');
-if (fs.existsSync(docsDir)) {
-  fs.rmSync(docsDir, { recursive: true, force: true });
+if (!fs.existsSync(docsDir)) {
+  fs.mkdirSync(docsDir, { recursive: true });
 }
-fs.cpSync(path.join(rootDir, 'dist'), docsDir, { recursive: true });
+fs.cpSync(path.join(rootDir, 'dist'), docsDir, { recursive: true, force: true });
 
 console.log('5. Syncing root index.html, 404.html, and assets/ for root-serving...');
 fs.copyFileSync(path.join(rootDir, 'dist', 'index.html'), path.join(rootDir, 'index.html'));
